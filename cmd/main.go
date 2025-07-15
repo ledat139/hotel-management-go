@@ -1,14 +1,18 @@
 package main
 
 import (
-	"log"
 	"hotel-management/database"
 	"hotel-management/router"
+	"log"
+
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	godotenv.Load(".env")
 	database.InitDB()
+	database.AutoMigrate()
 
 	r := gin.Default()
 	router.SetupRoutes(r)

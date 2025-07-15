@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -24,7 +25,6 @@ func InitDB() {
 	if err != nil {
 		log.Fatal("Cannot connect to DB:", err)
 	}
-
 	DB = db
 	fmt.Println("Database connected!")
 }
