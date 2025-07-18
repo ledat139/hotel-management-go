@@ -1,0 +1,16 @@
+{
+  "error.email_exists": "Email already exists.",
+  "error.hash_password_failed": "Failed to hash password.",
+  "error.create_user_failed": "Failed to create user.",
+  "error.invalid_request": "Invalid request data.",
+  "error.invalid_token": "Invalid token.",
+  "error.expired_or_invalid_refresh_token": "Invalid or expired refresh token.",
+  "error.invalid_credentials": "Invalid email or password.",
+  "error.generate_token_failed": "Could not generate token.",
+  "error.invalid_user_refresh_token": "Invalid user for refresh token.",
+  "error.internal_server": "Internal server error.",
+  "error.unexpected_signing_method": "Unexpected signing method",
+  "success.login": "Login successful!",
+  "success.register": "Register user successful!"
+  
+}

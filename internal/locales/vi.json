@@ -1,0 +1,15 @@
+{
+  "error.email_exists": "Email đã tồn tại.",
+  "error.hash_password_failed": "Không thể mã hóa mật khẩu.",
+  "error.create_user_failed": "Không thể tạo người dùng.",
+  "error.invalid_request": "Dữ liệu không hợp lệ.",
+  "error.invalid_token": "Token không hợp lệ.",
+  "error.expired_or_invalid_refresh_token": "Refresh Token không hợp lệ hoặc đã hết hạn.",
+  "error.invalid_credentials": "Email hoặc mật khẩu không đúng.",
+  "error.generate_token_failed": "Không thể tạo token.",
+  "error.invalid_user_refresh_token": "Người dùng không hợp lệ cho Refresh Token.",
+  "error.internal_server": "Lỗi máy chủ.",
+  "error.unexpected_signing_method": "Phương thức ký không hợp lệ",
+  "success.login": "Đăng nhập thành công.",
+  "success.register": "Đăng kí thành công."
+}
