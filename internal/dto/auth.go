@@ -15,3 +15,8 @@ type LoginRequest struct {
 type RefreshTokenInput struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
 }
+type GoogleUserInfo struct {
+	Email   string `json:"email"`
+	Name    string `json:"name"`
+	Picture string `json:"picture"`
+}

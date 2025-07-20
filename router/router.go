@@ -17,11 +17,14 @@ func SetupRoutes(r *gin.Engine) {
 	// Auth routes
 	userRepository := repository.NewUserRepository(database.DB)
 	userUseCase := usecase.NewUserUseCase(userRepository)
-	authHandler := handler.NewAuthHandler(userUseCase)
+	authUseCase := usecase.NewAuthUseCase(userRepository)
+	authHandler := handler.NewAuthHandler(userUseCase, authUseCase)
 	authGroup := r.Group("/auth")
 	{
 		authGroup.POST("/register", authHandler.Register)
 		authGroup.POST("/login", authHandler.Login)
 		authGroup.POST("/refresh-token", authHandler.RefreshToken)
+		authGroup.GET("/google/login", authHandler.GoogleLoginHandler)
+		authGroup.GET("/google/callback", authHandler.GoogleCallbackHandler)
 	}
 }

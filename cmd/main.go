@@ -27,6 +27,7 @@ func main() {
 	database.InitDB()
 	database.AutoMigrate()
 	utils.InitI18n()
+	utils.InitGoogleAuth()
 
 	r := gin.Default()
 	r.Use(middleware.I18nMiddleware())

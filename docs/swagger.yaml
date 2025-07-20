@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  dto.LoginRequest:
+  hotel-management_internal_dto.LoginRequest:
     properties:
       email:
         type: string
@@ -11,14 +11,14 @@ definitions:
     - email
     - password
     type: object
-  dto.RefreshTokenInput:
+  hotel-management_internal_dto.RefreshTokenInput:
     properties:
       refresh_token:
         type: string
     required:
     - refresh_token
     type: object
-  dto.RegisterRequest:
+  hotel-management_internal_dto.RegisterRequest:
     properties:
       email:
         type: string
@@ -44,6 +44,54 @@ info:
   title: Hotel Management API
   version: "1.0"
 paths:
+  /auth/google/callback:
+    get:
+      consumes:
+      - application/json
+      description: Handle Google OAuth2 callback, exchange code for tokens, fetch
+        user info, create user if not exists, and return JWT tokens.
+      parameters:
+      - description: Authorization code from Google
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful!
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Code not found from Google.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to exchange token from Google. / Failed to get user
+            information from Google. / Failed to get user / Failed to create user
+            / Could not generate token.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Google OAuth2 callback
+      tags:
+      - Auth
+  /auth/google/login:
+    get:
+      description: Redirects to Google OAuth2 login
+      responses:
+        "307":
+          description: Temporary Redirect
+          schema:
+            type: string
+      summary: Google OAuth2 Login
+      tags:
+      - Auth
   /auth/login:
     post:
       consumes:
@@ -55,7 +103,7 @@ paths:
         name: loginRequest
         required: true
         schema:
-          $ref: '#/definitions/dto.LoginRequest'
+          $ref: '#/definitions/hotel-management_internal_dto.LoginRequest'
       produces:
       - application/json
       responses:
@@ -93,7 +141,7 @@ paths:
         name: refreshTokenInput
         required: true
         schema:
-          $ref: '#/definitions/dto.RefreshTokenInput'
+          $ref: '#/definitions/hotel-management_internal_dto.RefreshTokenInput'
       produces:
       - application/json
       responses:
@@ -134,7 +182,7 @@ paths:
         name: registerRequest
         required: true
         schema:
-          $ref: '#/definitions/dto.RegisterRequest'
+          $ref: '#/definitions/hotel-management_internal_dto.RegisterRequest'
       produces:
       - application/json
       responses:
