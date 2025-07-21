@@ -15,6 +15,74 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/google/callback": {
+            "get": {
+                "description": "Handle Google OAuth2 callback, exchange code for tokens, fetch user info, create user if not exists, and return JWT tokens.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Google OAuth2 callback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization code from Google",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login successful!",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Code not found from Google.",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to exchange token from Google. / Failed to get user information from Google. / Failed to get user / Failed to create user / Could not generate token.",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/google/login": {
+            "get": {
+                "description": "Redirects to Google OAuth2 login",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Google OAuth2 Login",
+                "responses": {
+                    "307": {
+                        "description": "Temporary Redirect",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "Authenticate a user and return access and refresh tokens",
@@ -35,7 +103,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.LoginRequest"
+                            "$ref": "#/definitions/hotel-management_internal_dto.LoginRequest"
                         }
                     }
                 ],
@@ -91,7 +159,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.RefreshTokenInput"
+                            "$ref": "#/definitions/hotel-management_internal_dto.RefreshTokenInput"
                         }
                     }
                 ],
@@ -153,7 +221,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.RegisterRequest"
+                            "$ref": "#/definitions/hotel-management_internal_dto.RegisterRequest"
                         }
                     }
                 ],
@@ -188,7 +256,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "dto.LoginRequest": {
+        "hotel-management_internal_dto.LoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -204,7 +272,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.RefreshTokenInput": {
+        "hotel-management_internal_dto.RefreshTokenInput": {
             "type": "object",
             "required": [
                 "refresh_token"
@@ -215,7 +283,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.RegisterRequest": {
+        "hotel-management_internal_dto.RegisterRequest": {
             "type": "object",
             "required": [
                 "email",

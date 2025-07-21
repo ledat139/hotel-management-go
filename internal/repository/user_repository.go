@@ -10,7 +10,7 @@ import (
 type UserRepository interface {
 	GetUserByID(ctx context.Context, id int) (*models.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
-	CreateUser(ctx context.Context, user *models.User) error
+	CreateUser(ctx context.Context, user *models.User) (*models.User, error)
 }
 
 type userRepository struct {
@@ -37,9 +37,9 @@ func (r *userRepository) GetUserByEmail(ctx context.Context, email string) (*mod
 	return &user, nil
 }
 
-func (r *userRepository) CreateUser(ctx context.Context, user *models.User) error {
+func (r *userRepository) CreateUser(ctx context.Context, user *models.User) (*models.User, error) {
 	if err := r.db.WithContext(ctx).Create(user).Error; err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return user, nil
 }

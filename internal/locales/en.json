@@ -9,8 +9,11 @@
   "error.generate_token_failed": "Could not generate token.",
   "error.invalid_user_refresh_token": "Invalid user for refresh token.",
   "error.internal_server": "Internal server error.",
-  "error.unexpected_signing_method": "Unexpected signing method",
+  "error.unexpected_signing_method": "Unexpected signing method.",
   "success.login": "Login successful!",
-  "success.register": "Register user successful!"
-  
+  "success.register": "Register user successful!",
+  "error.failed_to_exchange_token": "Failed to exchange token from Google.",
+  "error.failed_to_get_user_info": "Failed to get user information from Google.",
+  "code_not_found": "Code not found from Google.",
+  "error.get_user_failed": "Failed to get user"
 }
