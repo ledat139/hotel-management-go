@@ -10,6 +10,7 @@ import (
 type UserRepository interface {
 	GetUserByID(ctx context.Context, id int) (*models.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
+	UpdateUser(ctx context.Context, user *models.User) error
 	CreateUser(ctx context.Context, user *models.User) (*models.User, error)
 }
 
@@ -42,4 +43,11 @@ func (r *userRepository) CreateUser(ctx context.Context, user *models.User) (*mo
 		return nil, err
 	}
 	return user, nil
+}
+
+func (r *userRepository) UpdateUser(ctx context.Context, user *models.User) error {
+	if err := r.db.WithContext(ctx).Updates(&user).Error; err != nil {
+		return err
+	}
+	return nil
 }

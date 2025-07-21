@@ -11,6 +11,13 @@ definitions:
     - email
     - password
     type: object
+  hotel-management_internal_dto.MailRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
   hotel-management_internal_dto.RefreshTokenInput:
     properties:
       refresh_token:
@@ -206,4 +213,130 @@ paths:
       summary: Register a new user
       tags:
       - Auth
+  /mail/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Generates a new password and sends it via email to the user.
+      parameters:
+      - description: User email for password reset
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/hotel-management_internal_dto.MailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: New password sent.'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: 'message: Invalid request data.'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'message: Failed to get user'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'message: Failed to update user.'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Reset user password
+      tags:
+      - Mail
+  /mail/smtp-verify:
+    post:
+      consumes:
+      - application/json
+      description: Send a verification email with token to user's email address if
+        the account is not activated.
+      parameters:
+      - description: Email to send verification link
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/hotel-management_internal_dto.MailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Verification email sent.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request data. | User already verified.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Failed to get user.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Could not generate token. | Failed to send verification email.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Send verification email
+      tags:
+      - Mail
+  /mail/verify-account:
+    get:
+      consumes:
+      - application/json
+      description: Activate user account based on the token sent via email
+      parameters:
+      - description: JWT token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Account verified successfully.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid token. | User already verified.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Failed to get user.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to update user.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Activate user account
+      tags:
+      - Mail
 swagger: "2.0"

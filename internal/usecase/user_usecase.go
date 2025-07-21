@@ -29,3 +29,11 @@ func (u *UserUseCase) CreateUser(ctx context.Context, user *models.User) (*model
 	}
 	return user, nil
 }
+
+func (u *UserUseCase) UpdateUser(ctx context.Context, user *models.User) error {
+	err := u.repo.UpdateUser(ctx, user)
+	if err != nil {
+		return err
+	}
+	return nil
+}

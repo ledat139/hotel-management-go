@@ -12,8 +12,17 @@
   "error.unexpected_signing_method": "Unexpected signing method.",
   "success.login": "Login successful!",
   "success.register": "Register user successful!",
+  "error.get_user_failed": "Failed to get user",
+  "error.user_already_verified": "User already verified.",
+  "error.failed_to_send_verification_email": "Failed to send verification email",
+  "success.verification_email_sent": "Verification email sent.",
+  "error.failed_to_update_user": "Failed to update user.",
+  "success.account_verified_successfully": "Account verified successfully",
+  "success.new_password_sent": "New password sent.",
+  "error.failed_to_send_reset_password": "Failed to send reset password.",
+  "error.failed_to_generate_password": "Failed to generate password.",
+  "error.token_required": "Token required.",
   "error.failed_to_exchange_token": "Failed to exchange token from Google.",
   "error.failed_to_get_user_info": "Failed to get user information from Google.",
-  "code_not_found": "Code not found from Google.",
-  "error.get_user_failed": "Failed to get user"
+  "code_not_found": "Code not found from Google."
 }
