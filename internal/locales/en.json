@@ -25,5 +25,9 @@
   "error.failed_to_exchange_token": "Failed to exchange token from Google.",
   "error.failed_to_get_user_info": "Failed to get user information from Google.",
   "code_not_found": "Code not found from Google.",
-  "error.invalid_role": "Invalid role"
+  "error.invalid_role": "Invalid role",
+  "error.missing_token": "Missing token.",
+  "error.access_restricted_to_customers_only": "Access restricted to customers only",
+  "error.account_is_not_activated": "Account is not activated",
+  "success.update_profile_successful": "Update profile successful"
 }

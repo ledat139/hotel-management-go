@@ -32,10 +32,10 @@ func NewMailHandler(mailUseCase *usecase.MailUseCase) *MailHandler {
 func (h *MailHandler) SendVerificationEmail(c *gin.Context) {
 	var mailRequest dto.MailRequest
 	if err := c.ShouldBindJSON(&mailRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
 		return
 	}
-	err := h.mailUseCase.SendVerificationEmail(c, mailRequest)
+	err := h.mailUseCase.SendVerificationEmail(c.Request.Context(), mailRequest)
 	if err != nil {
 		switch err.Error() {
 		case "error.get_user_failed":
@@ -50,7 +50,7 @@ func (h *MailHandler) SendVerificationEmail(c *gin.Context) {
 			})
 		default:
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": utils.T(c, "error.internal_server_error"),
+				"error": utils.T(c, "error.internal_server"),
 			})
 		}
 		return
@@ -76,7 +76,7 @@ func (h *MailHandler) ActiveAccountHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.token_required")})
 		return
 	}
-	err := h.mailUseCase.ActivateAccount(c, tokenString)
+	err := h.mailUseCase.ActivateAccount(c.Request.Context(), tokenString)
 	if err != nil {
 		switch err.Error() {
 		case "error.get_user_failed":
@@ -86,7 +86,7 @@ func (h *MailHandler) ActiveAccountHandler(c *gin.Context) {
 		case "error.failed_to_update_user":
 			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.internal_server_error")})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.internal_server")})
 		}
 		return
 	}
@@ -110,10 +110,10 @@ func (h *MailHandler) ActiveAccountHandler(c *gin.Context) {
 func (h *MailHandler) ResetPassword(c *gin.Context) {
 	var mailRequest dto.MailRequest
 	if err := c.ShouldBindJSON(&mailRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
 		return
 	}
-	err := h.mailUseCase.SendResetPassword(c, mailRequest)
+	err := h.mailUseCase.SendResetPassword(c.Request.Context(), mailRequest)
 	if err != nil {
 		switch err.Error() {
 		case "error.get_user_failed":
@@ -122,7 +122,7 @@ func (h *MailHandler) ResetPassword(c *gin.Context) {
 			"error.failed_to_update_user", "error.failed_to_send_verification_email":
 			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.internal_server_error")})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.internal_server")})
 		}
 		return
 	}

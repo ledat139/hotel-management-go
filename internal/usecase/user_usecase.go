@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"context"
+	"errors"
+	"hotel-management/internal/dto"
 	"hotel-management/internal/models"
 	"hotel-management/internal/repository"
 )
@@ -34,6 +36,27 @@ func (u *UserUseCase) UpdateUser(ctx context.Context, user *models.User) error {
 	err := u.repo.UpdateUser(ctx, user)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (u *UserUseCase) UpdateUserProfile(ctx context.Context, userProfile *dto.UpdateProfileRequest, userEmail string) error {
+	user, err := u.repo.GetUserByEmail(ctx, userEmail)
+	if err != nil {
+		return errors.New("error.get_user_failed")
+	}
+	if userProfile.Name != "" {
+		user.Name = userProfile.Name
+	}
+	if userProfile.PhoneNumber != "" {
+		user.PhoneNumber = userProfile.PhoneNumber
+	}
+	if userProfile.AvatarURL != "" {
+		user.AvatarURL = userProfile.AvatarURL
+	}
+	err = u.repo.UpdateUser(ctx, user)
+	if err != nil {
+		return errors.New("error.failed_to_update_user")
 	}
 	return nil
 }
