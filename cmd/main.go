@@ -7,7 +7,12 @@ import (
 	"hotel-management/internal/utils"
 	"hotel-management/router"
 	"log"
+	"os"
+	"path/filepath"
+	"runtime"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -32,6 +37,17 @@ func main() {
 
 	r := gin.Default()
 	r.Use(middleware.I18nMiddleware())
+	//Load static and template
+	_, b, _, _ := runtime.Caller(0)
+	basePath := filepath.Join(filepath.Dir(b), "..")
+
+	assetPath := filepath.Join(basePath, "web", "assets")
+	r.Static("/assets", assetPath)
+
+	r.LoadHTMLGlob(filepath.Join(basePath, "/web/templates/**/*.html"))
+
+	store := cookie.NewStore([]byte(os.Getenv("SECRET_KEY")))
+	r.Use(sessions.Sessions("mysession", store))
 	router.SetupRoutes(r)
 
 	err = r.Run(":8080")

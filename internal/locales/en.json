@@ -24,5 +24,6 @@
   "error.token_required": "Token required.",
   "error.failed_to_exchange_token": "Failed to exchange token from Google.",
   "error.failed_to_get_user_info": "Failed to get user information from Google.",
-  "code_not_found": "Code not found from Google."
+  "code_not_found": "Code not found from Google.",
+  "error.invalid_role": "Invalid role"
 }

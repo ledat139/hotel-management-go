@@ -3,8 +3,11 @@ package router
 import (
 	"hotel-management/database"
 	"hotel-management/internal/handler"
+	"hotel-management/internal/handler/admin"
+	"hotel-management/internal/middleware"
 	"hotel-management/internal/repository"
 	"hotel-management/internal/usecase"
+	"hotel-management/internal/usecase/admin_usecase"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -38,4 +41,14 @@ func SetupRoutes(r *gin.Engine) {
 		mailGroup.GET("/reset-password", mailHandler.ResetPassword)
 	}
 
+	//Admin route
+	adminAuthUseCase := admin_usecase.NewAuthUseCase(userRepository)
+	adminHandler := admin.NewAdminHandler(adminAuthUseCase)
+	adminGroup := r.Group("/admin")
+	{
+		adminGroup.GET("/", middleware.RequireLogin(), middleware.RequireRoles("admin"), adminHandler.AdminDashboard)
+		adminGroup.GET("/login", adminHandler.AdminLoginPage)
+		adminGroup.POST("/login", adminHandler.HandleLogin)
+		adminGroup.GET("/logout", adminHandler.HandleLogout)
+	}
 }

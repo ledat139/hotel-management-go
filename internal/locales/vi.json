@@ -24,5 +24,6 @@
   "error.token_required": "Thiếu mã token xác minh.",
   "error.failed_to_exchange_token": "Không thể trao đổi token từ Google.",
   "error.failed_to_get_user_info": "Không thể lấy thông tin người dùng từ Google.",
-  "code_not_found": "Không tìm thấy code từ Google."
+  "code_not_found": "Không tìm thấy code từ Google.",
+  "error.invalid_role": "Vai trò không hợp lệ."
 }
