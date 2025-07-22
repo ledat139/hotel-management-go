@@ -12,8 +12,17 @@
   "error.unexpected_signing_method": "Phương thức ký không hợp lệ",
   "success.login": "Đăng nhập thành công.",
   "success.register": "Đăng kí thành công.",
+  "error.get_user_failed": "Không thể lấy thông tin người dùng.",
+  "error.user_already_verified": "Tài khoản đã được xác thực.",
+  "error.failed_to_send_verification_email": "Không thể gửi email xác thực tài khoản.",
+  "success.verification_email_sent": "Email xác thực đã được gửi.",
+  "error.failed_to_update_user": "Không thể cập nhật thông tin người dùng.",
+  "success.account_verified_successfully": "Xác thực tài khoản thành công.",
+  "success.new_password_sent": "Mật khẩu mới đã được gửi.",
+  "error.failed_to_send_reset_password": "Không thể gửi reset password.",
+  "error.failed_to_generate_password": "Không thể tạo mật khẩu.",
+  "error.token_required": "Thiếu mã token xác minh.",
   "error.failed_to_exchange_token": "Không thể trao đổi token từ Google.",
   "error.failed_to_get_user_info": "Không thể lấy thông tin người dùng từ Google.",
-  "code_not_found": "Không tìm thấy code từ Google.",
-  "error.get_user_failed": "Không thể lấy thông tin người dùng."
+  "code_not_found": "Không tìm thấy code từ Google."
 }

@@ -27,6 +27,7 @@ func main() {
 	database.InitDB()
 	database.AutoMigrate()
 	utils.InitI18n()
+	utils.InitMail()
 	utils.InitGoogleAuth()
 
 	r := gin.Default()

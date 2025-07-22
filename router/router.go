@@ -27,4 +27,15 @@ func SetupRoutes(r *gin.Engine) {
 		authGroup.GET("/google/login", authHandler.GoogleLoginHandler)
 		authGroup.GET("/google/callback", authHandler.GoogleCallbackHandler)
 	}
+
+	//Mail routes
+	mailUseCase := usecase.NewMailUseCase(userRepository)
+	mailHandler := handler.NewMailHandler(mailUseCase)
+	mailGroup := r.Group("/mail")
+	{
+		mailGroup.POST("/smtp-verify", mailHandler.SendVerificationEmail)
+		mailGroup.GET("/verify-account", mailHandler.ActiveAccountHandler)
+		mailGroup.GET("/reset-password", mailHandler.ResetPassword)
+	}
+
 }
