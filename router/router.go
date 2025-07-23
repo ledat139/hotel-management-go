@@ -51,4 +51,8 @@ func SetupRoutes(r *gin.Engine) {
 		adminGroup.POST("/login", adminHandler.HandleLogin)
 		adminGroup.GET("/logout", adminHandler.HandleLogout)
 	}
+	//User routes
+	userHandler := handler.NewUserHandler(userUseCase)
+	r.PUT("/users/update-profile", middleware.RequireAuth(userRepository), userHandler.UpdateProfile)
+
 }

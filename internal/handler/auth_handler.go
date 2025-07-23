@@ -37,12 +37,12 @@ func NewAuthHandler(userUseCase *usecase.UserUseCase, authUseCase *usecase.AuthU
 func (h *AuthHandler) Register(c *gin.Context) {
 	var registerRequest dto.RegisterRequest
 	if err := c.ShouldBindJSON(&registerRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
 		return
 	}
 	user, err := h.authUseCase.Register(c.Request.Context(), &registerRequest)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, err.Error())})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{
@@ -66,12 +66,12 @@ func (h *AuthHandler) Register(c *gin.Context) {
 func (h *AuthHandler) Login(c *gin.Context) {
 	var loginRequest dto.LoginRequest
 	if err := c.ShouldBindJSON(&loginRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
 		return
 	}
 	user, err := h.authUseCase.Authenticate(c.Request.Context(), &loginRequest)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": utils.T(c, err.Error())})
 		return
 	}
 	accessToken, errAT := utils.GenerateAccessToken(user)
@@ -106,12 +106,12 @@ func (h *AuthHandler) Login(c *gin.Context) {
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	var input dto.RefreshTokenInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
 		return
 	}
 	user, err := h.authUseCase.AuthenticateUserFromClaim(c.Request.Context(), &input)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 	newAccessToken, err := utils.GenerateAccessToken(user)
@@ -157,7 +157,7 @@ func (h *AuthHandler) GoogleCallbackHandler(c *gin.Context) {
 		return
 	}
 
-	user, err := h.userUseCase.GetUserByEmail(c, userInfo.Email)
+	user, err := h.userUseCase.GetUserByEmail(c.Request.Context(), userInfo.Email)
 	if err != nil && err != gorm.ErrRecordNotFound {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.get_user_failed")})
 		return
