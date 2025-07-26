@@ -54,5 +54,20 @@ func SetupRoutes(r *gin.Engine) {
 	//User routes
 	userHandler := handler.NewUserHandler(userUseCase)
 	r.PUT("/users/update-profile", middleware.RequireAuth(userRepository), userHandler.UpdateProfile)
+	//Room routes
+	roomRepository := repository.NewRoomRepository(database.DB)
+	roomUseCase := usecase.NewRoomUseCase(roomRepository)
+	roomHandler := handler.NewRoomHandler(roomUseCase)
+	r.POST("/rooms/search", middleware.RequireAuth(userRepository), roomHandler.FindAvailableRoom)
 
+	//Booking routes
+	bookingRepository := repository.NewBookingRepository(database.DB)
+	bookingUseCase := usecase.NewBookingUseCase(bookingRepository)
+	bookingHandler := handler.NewBookingHandler(bookingUseCase)
+	bookingGroup := r.Group("/bookings")
+	{
+		bookingGroup.POST("/", middleware.RequireAuth(userRepository), bookingHandler.CreateBooking)
+		bookingGroup.GET("/history", middleware.RequireAuth(userRepository), bookingHandler.GetBookingHistory)
+		bookingGroup.GET("/:id/cancel", middleware.RequireAuth(userRepository), bookingHandler.CancelBooking)
+	}
 }
