@@ -54,5 +54,9 @@ func SetupRoutes(r *gin.Engine) {
 	//User routes
 	userHandler := handler.NewUserHandler(userUseCase)
 	r.PUT("/users/update-profile", middleware.RequireAuth(userRepository), userHandler.UpdateProfile)
-
+	//Room routes
+	roomRepository := repository.NewRoomRepository(database.DB)
+	roomUseCase := usecase.NewRoomUseCase(roomRepository)
+	roomHandler := handler.NewRoomHandler(roomUseCase)
+	r.POST("/rooms/search", roomHandler.FindAvailableRoom)
 }

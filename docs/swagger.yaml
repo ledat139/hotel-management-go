@@ -44,6 +44,62 @@ definitions:
     - last_name
     - password
     type: object
+  hotel-management_internal_dto.SearchRoomRequest:
+    properties:
+      bed_num:
+        type: integer
+      end_date:
+        type: string
+      has_aircon:
+        type: boolean
+      max_price:
+        type: number
+      min_price:
+        type: number
+      start_date:
+        type: string
+      view_type:
+        type: string
+    required:
+    - end_date
+    - start_date
+    type: object
+  hotel-management_internal_dto.SearchRoomResponse:
+    properties:
+      bed_num:
+        type: integer
+      description:
+        type: string
+      has_aircon:
+        type: boolean
+      id:
+        type: integer
+      image_urls:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      price_per_night:
+        type: number
+      type:
+        type: string
+      view_type:
+        type: string
+    type: object
+  hotel-management_internal_dto.UpdateProfileRequest:
+    properties:
+      avatar_url:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      phone_number:
+        type: string
+    required:
+    - name
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -339,4 +395,87 @@ paths:
       summary: Activate user account
       tags:
       - Mail
+  /rooms/search:
+    post:
+      consumes:
+      - application/json
+      description: Find all available rooms that match the search criteria and are
+        not booked during the requested time range
+      parameters:
+      - description: Search filters for room availability
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/hotel-management_internal_dto.SearchRoomRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Find available room successful!
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/hotel-management_internal_dto.SearchRoomResponse'
+              type: array
+            type: object
+        "400":
+          description: Invalid request data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to find available room.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Search available rooms
+      tags:
+      - Rooms
+  /users/update-profile:
+    put:
+      consumes:
+      - application/json
+      description: Update the name, avatar, or phone number of the current user
+      parameters:
+      - description: Update profile request
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/hotel-management_internal_dto.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: Update profile successful.'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: 'message: Invalid request data.'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error: Failed to get user'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error: Failed to update user. or Internal server error.'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - Users
 swagger: "2.0"

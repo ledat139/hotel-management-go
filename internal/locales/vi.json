@@ -29,5 +29,7 @@
   "error.missing_token": "Thiếu token.",
   "error.access_restricted_to_customers_only": "Chỉ khách hàng mới được phép truy cập.",
   "error.account_is_not_activated": "Tài khoản chưa được kích hoạt.",
-  "success.update_profile_successful": "Cập nhật thông tin cá nhân thành công."
+  "success.update_profile_successful": "Cập nhật thông tin cá nhân thành công.",
+  "error.failed_to_find_available_room": "Không thể tìm thấy phòng.",
+  "success.find_available_room_successful": "Tìm phòng thành công."
 }
