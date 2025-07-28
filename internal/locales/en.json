@@ -47,5 +47,11 @@
   "error.start_date_must_be_before_end_date": "Start date must be before end date.",
   "error.min_price_must_be_less_than_max_price": "Min price must be less than max price.",
   "error.invalid_room_id": "Invalid room ID.",
-  "error.invalid_booking_id": "Invalid booking ID."
+  "error.invalid_booking_id": "Invalid booking ID.",
+  "error.booking_not_checked_out": "Booking not checked out.",
+  "error.review_check_failed" : "Review check failed.",
+  "error.review_already_exists": "Review already exists for this booking.",
+  "error.failed_to_create_review"  : "Failed to create review.",
+  "success.review_created" : "Review created successfully.",
+  "error.invalid_user_id": "Invalid user ID."
 }
