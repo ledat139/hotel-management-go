@@ -1,0 +1,134 @@
+{{ template "head.html" . }}
+
+<body class=" bg-surface">
+  <main>
+    {{ template "header.html" . }}
+    <!--start the project-->
+    <div id="main-wrapper" class="flex p-5 xl:pr-0">
+      <!-- sidebar -->
+      {{ template "sidebar.html" . }}
+      <!--end sidebar -->
+      <div class=" w-full page-wrapper xl:px-6 px-0">
+
+        <!-- Main Content -->
+        <main class="h-full  max-w-full">
+          <div class="container full-container p-0 flex flex-col gap-6">
+            <div class="card">
+              <div class="card-body flex flex-col gap-6">
+                <div class="flex justify-between items-center mb-4">
+                  <h6 class="text-lg text-gray-700 font-semibold">{{ call .T .Title}}</h6>
+                  <a href="/admin/rooms" class="text-blue-600 hover:underline">{{ call .T "title.back_to_list"}}</a>
+                </div>
+
+                <div class="card">
+                  <div class="card-body">
+                    <form method="POST" action="/admin/rooms/create" enctype="multipart/form-data">
+                      <div class="grid grid-cols-1 gap-4">
+                        <!-- Name -->
+                        <div>
+                          <label class="block text-sm mb-2 font-semibold  text-gray-700">{{ call .T
+                            "title.name"}}</label>
+                          <input type="text" name="name" required
+                            class="py-3 px-4 block w-full border-gray-200 rounded-xl text-sm focus:border-blue-600 focus:ring-0"
+                            placeholder="Phòng 101">
+                        </div>
+
+                        <!-- Type -->
+                        <div>
+                          <label class="block text-sm mb-2 font-semibold  text-gray-700">{{ call .T
+                            "title.room_type"}}</label>
+                          <input type="text" name="type" required
+                            class="py-3 px-4 block w-full border-gray-200 rounded-xl text-sm focus:border-blue-600 focus:ring-0"
+                            placeholder="Deluxe, Standard...">
+                        </div>
+
+                        <!-- Price Per Night -->
+                        <div>
+                          <label class="block text-sm mb-2 font-semibold  text-gray-700">{{ call .T
+                            "title.price_per_night"}}</label>
+                          <input type="number" name="price_per_night" step="0.01" min="0" required
+                            class="py-3 px-4 block w-full border-gray-200 rounded-xl text-sm focus:border-blue-600 focus:ring-0">
+                        </div>
+
+                        <!-- Bed Number -->
+                        <div>
+                          <label class="block text-sm mb-2 font-semibold  text-gray-700">{{ call .T
+                            "title.bed_num"}}</label>
+                          <input type="number" name="bed_num" min="1" required
+                            class="py-3 px-4 block w-full border-gray-200 rounded-xl text-sm focus:border-blue-600 focus:ring-0">
+                        </div>
+
+                        <!-- View Type -->
+                        <div>
+                          <label class="block text-sm mb-2 font-semibold  text-gray-700">{{ call .T
+                            "title.view_type"}}</label>
+                          <input type="text" name="view_type" required
+                            class="py-3 px-4 block w-full border-gray-200 rounded-xl text-sm focus:border-blue-600 focus:ring-0"
+                            placeholder="Biển, thành phố, núi...">
+                        </div>
+
+                        <!-- Room image -->
+                        <div class="w-full">
+                          <label class="block text-sm mb-2 font-semibold  text-gray-700">{{ call .T
+                            "title.room_image"}}</label>
+                          <input type="file" name="images" id="image-input" multiple
+                            class="py-3 px-4 block w-full border-gray-200 rounded-xl text-sm focus:border-blue-600 focus:ring-0"
+                            accept="image/*">
+                          <p class="text-xs text-gray-400 mt-1">{{ call .T "title.you_can_select_multiple_images"}}</p>
+                          <div id="preview" class="w-full mt-4 grid grid-cols-2 gap-4"></div>
+                        </div>
+                      </div>
+
+                      <!-- Description -->
+                      <div class="mt-4">
+                        <label class="block text-sm mb-2 font-semibold  text-gray-700">{{ call .T
+                          "title.description"}}</label>
+                        <textarea name="description" rows="4"
+                          class="py-3 px-4 block w-full border-gray-200 rounded-xl text-sm focus:border-blue-600 focus:ring-0"
+                          placeholder="Mô tả chi tiết về phòng..."></textarea>
+                      </div>
+
+                      <!-- Checkboxes -->
+                      <div class="flex items-center gap-6 mt-4">
+                        <label class="flex items-center">
+                          <input type="checkbox" name="has_aircon" checked
+                            class="shrink-0 mt-0.5 border-gray-400 rounded-[4px] text-blue-600 focus:ring-blue-500">
+                          <span class="text-sm  ms-2 font-semibold  text-gray-700">{{ call .T
+                            "title.air_conditioning"}}</span>
+                        </label>
+                        <label class="flex items-center">
+                          <input type="checkbox" name="is_available" checked
+                            class="shrink-0 mt-0.5 border-gray-400 rounded-[4px] text-blue-600 focus:ring-blue-500">
+                          <span class="text-sm font-semibold  text-gray-700 ms-2">{{ call .T
+                            "title.is_available"}}</span>
+                        </label>
+                      </div>
+                      {{ if .error }}
+                      <p class="text-red-500 text-sm mb-4">{{ .error }}</p>
+                      {{ end }}
+
+                      <!-- Submit -->
+                      <button
+                        class="rounded-xl mt-6 btn text-base py-2.5 text-white font-medium w-fit hover:bg-blue-700">{{
+                        call .T
+                        "title.create_room"}}</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+        <!-- Main Content End -->
+
+      </div>
+    </div>
+    <!--end of project-->
+  </main>
+
+  {{template "script.html" . }}
+  </style>
+
+</body>
+
+</html>

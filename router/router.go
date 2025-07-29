@@ -44,24 +44,36 @@ func SetupRoutes(r *gin.Engine) {
 	//Admin route
 	adminAuthUseCase := admin_usecase.NewAuthUseCase(userRepository)
 	adminHandler := admin.NewAdminHandler(adminAuthUseCase)
+
+	roomRepository := repository.NewRoomRepository(database.DB)
+	reviewRepository := repository.NewReviewRepository(database.DB)
+	bookingRepository := repository.NewBookingRepository(database.DB)
+	roomAdminUseCase := admin_usecase.NewRoomUseCase(roomRepository, bookingRepository, reviewRepository)
+	roomAdminHandler := admin.NewRoomHandler(roomAdminUseCase)
 	adminGroup := r.Group("/admin")
 	{
 		adminGroup.GET("/", middleware.RequireLogin(), middleware.RequireRoles("admin"), adminHandler.AdminDashboard)
 		adminGroup.GET("/login", adminHandler.AdminLoginPage)
 		adminGroup.POST("/login", adminHandler.HandleLogin)
 		adminGroup.GET("/logout", adminHandler.HandleLogout)
+		adminGroup.GET("/rooms", middleware.RequireRoles("admin", "staff"), roomAdminHandler.RoomManagementPage)
+		adminGroup.GET("/rooms/create", middleware.RequireRoles("admin", "staff"), roomAdminHandler.CreateRoomPage)
+		adminGroup.POST("/rooms/create", middleware.RequireRoles("admin", "staff"), roomAdminHandler.CreateRoom)
+		adminGroup.GET("/rooms/:id", middleware.RequireRoles("admin", "staff"), roomAdminHandler.RoomDetailPage)
+		adminGroup.GET("/rooms/edit/:id", middleware.RequireRoles("admin", "staff"), roomAdminHandler.EditRoomPage)
+		adminGroup.POST("/rooms/edit/:id", middleware.RequireRoles("admin", "staff"), roomAdminHandler.UpdateRoom)
+		adminGroup.POST("/rooms/delete/:id", middleware.RequireRoles("admin", "staff"), roomAdminHandler.DeleteRoom)
 	}
 	//User routes
 	userHandler := handler.NewUserHandler(userUseCase)
 	r.PUT("/users/update-profile", middleware.RequireAuth(userRepository), userHandler.UpdateProfile)
+
 	//Room routes
-	roomRepository := repository.NewRoomRepository(database.DB)
 	roomUseCase := usecase.NewRoomUseCase(roomRepository)
 	roomHandler := handler.NewRoomHandler(roomUseCase)
 	r.POST("/rooms/search", middleware.RequireAuth(userRepository), roomHandler.FindAvailableRoom)
 
 	//Booking routes
-	bookingRepository := repository.NewBookingRepository(database.DB)
 	bookingUseCase := usecase.NewBookingUseCase(bookingRepository)
 	bookingHandler := handler.NewBookingHandler(bookingUseCase)
 	bookingGroup := r.Group("/bookings")
@@ -71,7 +83,6 @@ func SetupRoutes(r *gin.Engine) {
 		bookingGroup.GET("/:id/cancel", middleware.RequireAuth(userRepository), bookingHandler.CancelBooking)
 	}
 	//Review
-	reviewRepository := repository.NewReviewRepository(database.DB)
 	reviewUseCase := usecase.NewReviewUseCase(bookingRepository, reviewRepository)
 	reviewHandler := handler.NewReviewHandler(reviewUseCase)
 	r.POST("/reviews", middleware.RequireAuth(userRepository), reviewHandler.CreateReview)

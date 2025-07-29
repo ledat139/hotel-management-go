@@ -32,7 +32,7 @@ func NewBookingRepository(db *gorm.DB) BookingRepository {
 func (r *bookingRepository) GetDB() *gorm.DB {
 	return r.db
 }
-func (r *bookingRepository) DeleteBookingRoomByRoomIDTx(ctx context.Context, tx *gorm.DB, id int) error {
+func (*bookingRepository) DeleteBookingRoomByRoomIDTx(ctx context.Context, tx *gorm.DB, id int) error {
 	err := tx.WithContext(ctx).Where("room_id = ?", id).Delete(&models.BookingRoom{}).Error
 	if err != nil {
 		return err

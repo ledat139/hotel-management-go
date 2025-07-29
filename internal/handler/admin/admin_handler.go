@@ -20,13 +20,15 @@ func NewAdminHandler(authUseCase *admin_usecase.AuthUseCase) *AdminHandler {
 
 func (h *AdminHandler) AdminDashboard(c *gin.Context) {
 	c.HTML(http.StatusOK, "home.html", gin.H{
-		"Title": "Admin Dashboard",
+		"T":     utils.TmplTranslateFromContext(c),
+		"Title": "title.admin_dashboard",
 	})
 }
 
 func (h *AdminHandler) AdminLoginPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "login.html", gin.H{
-		"Title": "Admin Login Page",
+		"T":     utils.TmplTranslateFromContext(c),
+		"Title": "title.admin_login_page",
 	})
 }
 
@@ -35,13 +37,21 @@ func (h *AdminHandler) HandleLogin(c *gin.Context) {
 	password := c.PostForm("password")
 
 	if email == "" || password == "" {
-		c.HTML(http.StatusBadRequest, "login.html", gin.H{"error": utils.T(c, "error.invalid_request")})
+		c.HTML(http.StatusBadRequest, "login.html", gin.H{
+			"error": utils.T(c, "error.invalid_request"),
+			"T":     utils.TmplTranslateFromContext(c),
+			"Title": "title.admin_login_page",
+		})
 		return
 	}
 
 	user, err := h.authUseCase.Login(c.Request.Context(), email, password)
 	if err != nil {
-		c.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": utils.T(c, err.Error())})
+		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+			"error": utils.T(c, err.Error()),
+			"T":     utils.TmplTranslateFromContext(c),
+			"Title": "title.admin_login_page",
+		})
 		return
 	}
 
@@ -50,7 +60,11 @@ func (h *AdminHandler) HandleLogin(c *gin.Context) {
 	session.Set("user_role", user.Role)
 	err = session.Save()
 	if err != nil {
-		c.HTML(http.StatusInternalServerError, "login.html", gin.H{"error": utils.T(c, "error.internal_server")})
+		c.HTML(http.StatusInternalServerError, "login.html", gin.H{
+			"error": utils.T(c, "error.internal_server"),
+			"T":     utils.TmplTranslateFromContext(c),
+			"Title": "title.admin_login_page",
+		})
 		return
 	}
 
