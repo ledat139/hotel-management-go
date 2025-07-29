@@ -36,7 +36,6 @@ func (u *RoomUseCase) saveRoomImages(ctx *gin.Context, tx *gorm.DB, roomID uint,
 		filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), filepath.Base(fileHeader.Filename))
 		savePath := filepath.Join(uploadDir, filename)
 		savedFiles = append(savedFiles, savePath)
-
 		if err := ctx.SaveUploadedFile(fileHeader, savePath); err != nil {
 			deleteSavedFiles(savedFiles)
 			return savedFiles, errors.New("error.failed_to_save_file")

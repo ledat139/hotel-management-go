@@ -106,5 +106,22 @@
   "title.description": "Mô tả",
   "title.is_available": "Có sẵn",
   "title.delete_image": "Xóa hình ảnh",
-  "title.save_change": "Lưu thay đổi"
+  "title.save_change": "Lưu thay đổi",
+  "invalid_client_ip": "Địa chỉ IP của khách hàng không hợp lệ.",
+  "error.invalid_amount": "Số tiền không hợp lệ.",
+  "error.amount_exceeds_limit": "Số tiền vượt quá giới hạn 999,999,999 VND.",
+  "error.failed_to_create_vnpay_payment": "Không thể tạo thanh toán VnPay.",
+  "error.failed_to_save_payment": "Không thể lưu thanh toán.",
+  "error.payment_not_found": "Không tìm thấy thanh toán.",
+  "error.failed_to_get_payment": "Không thể lấy thông tin thanh toán.",
+  "error.payment_already_processed": "Thanh toán đã được xử lý.",
+  "error.failed_to_update_payment": "Không thể cập nhật thanh toán.",
+  "error.invalid_vnpay_callback_parameters": "Tham số VNPAY không hợp lệ.",
+  "error.failed_to_process_payment": "Không thể xử lý thanh toán.",
+  "success.payment_processed": "Thanh toán đã được xử lý thành công.",
+  "error.failed_to_update_booking": "Không thể cập nhật thông tin đặt phòng.",
+  "error.booking_has_paid": "Hóa đơn phòng đã được thanh toán.",
+  "error.failed_to_pay_booking": "Không thể thanh toán.",
+  "error.failed_to_create_bill": "Không thể tạo hóa đơn.",
+  "error.invalid_ip_address": "Địa chỉ IP không hợp lệ."
 }

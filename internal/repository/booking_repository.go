@@ -19,6 +19,8 @@ type BookingRepository interface {
 	UpdateBooking(ctx context.Context, booking *models.Booking) error
 	GetDB() *gorm.DB
 	GetBookingByID(ctx context.Context, bookingID uint) (*models.Booking, error)
+	GetBookingByIDTx(ctx context.Context, tx *gorm.DB, bookingID uint) (*models.Booking, error)
+	UpdateBookingTx(ctx context.Context, tx *gorm.DB, booking *models.Booking) error
 }
 
 type bookingRepository struct {
@@ -104,9 +106,23 @@ func (r *bookingRepository) GetBookingByID(ctx context.Context, bookingID uint) 
 	}
 	return &booking, nil
 }
+func (r *bookingRepository) GetBookingByIDTx(ctx context.Context, tx *gorm.DB, bookingID uint) (*models.Booking, error) {
+	var booking models.Booking
+	if err := tx.WithContext(ctx).First(&booking, bookingID).Error; err != nil {
+		return nil, err
+	}
+	return &booking, nil
+}
 
 func (r *bookingRepository) UpdateBooking(ctx context.Context, booking *models.Booking) error {
 	err := r.db.WithContext(ctx).Updates(&booking).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (r *bookingRepository) UpdateBookingTx(ctx context.Context, tx *gorm.DB, booking *models.Booking) error {
+	err := tx.WithContext(ctx).Updates(&booking).Error
 	if err != nil {
 		return err
 	}

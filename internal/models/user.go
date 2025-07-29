@@ -14,7 +14,5 @@ type User struct {
 
 	Bookings []Booking `gorm:"foreignKey:UserID" json:"bookings,omitempty"`
 	Reviews  []Review  `gorm:"foreignKey:UserID" json:"reviews,omitempty"`
-	Payments []Payment `gorm:"foreignKey:UserID" json:"payments,omitempty"`
 	Shifts   []Shift   `gorm:"foreignKey:StaffID" json:"shifts,omitempty"`
-	Bills    []Bill    `gorm:"foreignKey:StaffID" json:"bills,omitempty"`
 }

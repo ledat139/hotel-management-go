@@ -86,4 +86,15 @@ func SetupRoutes(r *gin.Engine) {
 	reviewUseCase := usecase.NewReviewUseCase(bookingRepository, reviewRepository)
 	reviewHandler := handler.NewReviewHandler(reviewUseCase)
 	r.POST("/reviews", middleware.RequireAuth(userRepository), reviewHandler.CreateReview)
+
+	//Payment routes
+	paymentRepository := repository.NewPaymentRepository(database.DB)
+	billRepository := repository.NewBillRepository(database.DB)
+	paymentUseCase := usecase.NewPaymentUseCase(paymentRepository, bookingRepository, billRepository)
+	paymentHandler := handler.NewPaymentHandler(paymentUseCase)
+	paymentGroup := r.Group("/payments")
+	{
+		paymentGroup.GET("/:id/vnpay", paymentHandler.GetVnPayUrl)
+		paymentGroup.GET("/vnpay_return", paymentHandler.HandleVnpayCallback)
+	}
 }
