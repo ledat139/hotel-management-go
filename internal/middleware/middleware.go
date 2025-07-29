@@ -99,6 +99,7 @@ func RequireAuth(userRepo repository.UserRepository) gin.HandlerFunc {
 		}
 
 		c.Set("userEmail", user.Email)
+		c.Set("userID", user.ID)
 		c.Set("userName", user.Name)
 		c.Next()
 	}

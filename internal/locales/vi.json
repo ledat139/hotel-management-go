@@ -29,5 +29,21 @@
   "error.missing_token": "Thiếu token.",
   "error.access_restricted_to_customers_only": "Chỉ khách hàng mới được phép truy cập.",
   "error.account_is_not_activated": "Tài khoản chưa được kích hoạt.",
-  "success.update_profile_successful": "Cập nhật thông tin cá nhân thành công."
+  "success.update_profile_successful": "Cập nhật thông tin cá nhân thành công.",
+  "error.failed_to_find_available_room": "Không thể tìm thấy phòng.",
+  "success.find_available_room_successful": "Tìm phòng thành công.",
+  "error.failed_to_create_booking": "Không thể tạo đặt phòng.",
+  "error.room_is_not_available": "Phòng không có sẵn.",
+  "error.failed_to_get_room_price": "Không thể lấy giá phòng.",
+  "error.failed_to_commit_transaction": "Không thể thực hiện giao dịch.",
+  "error.unauthorized": "Truy cập không được phép.",
+  "error.failed_to_get_booking": "Không thể lấy thông tin đặt phòng.",
+  "error.failed_to_get_booking_history": "Không thể lấy lịch sử đặt phòng.",
+  "error.booking_not_found": "Không tìm thấy đặt phòng.",
+  "error.failed_to_cancel_booking": "Không thể hủy đặt phòng.",
+  "success.booking_cancelled": "Đặt phòng đã được hủy thành công.",
+  "error.start_date_must_be_before_end_date": "Ngày bắt đầu phải trước ngày kết thúc.",
+  "error.min_price_must_be_less_than_max_price": "Giá tối thiểu phải nhỏ hơn giá tối đa.",
+  "error.invalid_room_id": "Mã phòng không hợp lệ.",
+  "error.invalid_booking_id": "Mã đặt phòng không hợp lệ."
 }
