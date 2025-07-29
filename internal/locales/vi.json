@@ -45,5 +45,11 @@
   "error.start_date_must_be_before_end_date": "Ngày bắt đầu phải trước ngày kết thúc.",
   "error.min_price_must_be_less_than_max_price": "Giá tối thiểu phải nhỏ hơn giá tối đa.",
   "error.invalid_room_id": "Mã phòng không hợp lệ.",
-  "error.invalid_booking_id": "Mã đặt phòng không hợp lệ."
+  "error.invalid_booking_id": "Mã đặt phòng không hợp lệ.",
+  "error.booking_not_checked_out": "Đặt phòng chưa được trả phòng.",
+  "error.review_check_failed": "Kiểm tra đánh giá không thành công.",
+  "error.review_already_exists": "Đánh giá đã tồn tại cho đặt phòng này.",
+  "error.failed_to_create_review": "Không thể tạo đánh giá.",
+  "success.review_created": "Đánh giá đã được tạo thành công.",
+  "error.invalid_user_id": "Mã người dùng không hợp lệ."
 }

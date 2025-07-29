@@ -18,6 +18,7 @@ type BookingRepository interface {
 	GetBookingByBookingIDAndUserID(ctx context.Context, bookingID uint, userID uint) (*models.Booking, error)
 	UpdateBooking(ctx context.Context, booking *models.Booking) error
 	GetDB() *gorm.DB
+	GetBookingByID(ctx context.Context, bookingID uint) (*models.Booking, error)
 }
 
 type bookingRepository struct {
@@ -92,6 +93,13 @@ func (r *bookingRepository) GetBookingByBookingIDAndUserID(ctx context.Context, 
 	var booking models.Booking
 	err := r.db.WithContext(ctx).Where("id = ? and user_id = ?", bookingID, userID).First(&booking).Error
 	if err != nil {
+		return nil, err
+	}
+	return &booking, nil
+}
+func (r *bookingRepository) GetBookingByID(ctx context.Context, bookingID uint) (*models.Booking, error) {
+	var booking models.Booking
+	if err := r.db.WithContext(ctx).First(&booking, bookingID).Error; err != nil {
 		return nil, err
 	}
 	return &booking, nil

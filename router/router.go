@@ -70,4 +70,9 @@ func SetupRoutes(r *gin.Engine) {
 		bookingGroup.GET("/history", middleware.RequireAuth(userRepository), bookingHandler.GetBookingHistory)
 		bookingGroup.GET("/:id/cancel", middleware.RequireAuth(userRepository), bookingHandler.CancelBooking)
 	}
+	//Review
+	reviewRepository := repository.NewReviewRepository(database.DB)
+	reviewUseCase := usecase.NewReviewUseCase(bookingRepository, reviewRepository)
+	reviewHandler := handler.NewReviewHandler(reviewUseCase)
+	r.POST("/reviews", middleware.RequireAuth(userRepository), reviewHandler.CreateReview)
 }
