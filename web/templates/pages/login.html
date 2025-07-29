@@ -14,10 +14,10 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
   <!-- Core Css -->
   <link rel="stylesheet" href="/assets/css/theme.css" />
-  <title>{{ .Title}}</title>
+  <title>{{ call .T .Title }}</title>
 </head>
 
-<body class="DEFAULT_THEME ">
+<body class="DEFAULT_THEME">
   <main>
     <!-- Main Content -->
     <div
@@ -38,7 +38,7 @@
             </div>
             <!-- password -->
             <div class="mb-6">
-              <label for="forPassword" class="block text-sm  mb-2 text-gray-400">Password</label>
+              <label for="forPassword" class="block text-sm  mb-2 text-gray-400">{{ call .T "title.password" }}</label>
               <input type="password" id="forPassword" name="password"
                 class="py-3 px-4 block w-full border-gray-200 rounded-sm text-sm focus:border-blue-600 focus:ring-0 "
                 aria-describedby="hs-input-helper-text">
@@ -47,10 +47,10 @@
             <!-- button -->
             <div class="grid my-6">
               <input type="submit" href="../" class="btn py-[10px] text-base text-white font-medium hover:bg-blue-700"
-                value="Sign in">
+                value={{ call .T "title.sign_in" }}>
             </div>
             {{ if .error }}
-            <p class="text-red-500 text-sm mb-4">{{ .error }}</p>
+            <p class="text-red-500 text-sm mb-4">{{.error }}</p>
             {{ end }}
         </div>
         </form>

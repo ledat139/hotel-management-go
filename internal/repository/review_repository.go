@@ -10,6 +10,7 @@ import (
 type ReviewRepository interface {
 	CreateReview(ctx context.Context, review *models.Review) error
 	ExistsByBookingID(ctx context.Context, bookingID uint) (bool, error)
+	DeleteByRoomIDTx(ctx context.Context, tx *gorm.DB, id int) error
 }
 
 type reviewRepository struct {
@@ -22,6 +23,14 @@ func NewReviewRepository(db *gorm.DB) ReviewRepository {
 
 func (r *reviewRepository) CreateReview(ctx context.Context, review *models.Review) error {
 	if err := r.db.WithContext(ctx).Create(review).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*reviewRepository) DeleteByRoomIDTx(ctx context.Context, tx *gorm.DB, id int) error {
+	err := tx.WithContext(ctx).Where("room_id = ?", id).Delete(&models.Review{}).Error
+	if err != nil {
 		return err
 	}
 	return nil

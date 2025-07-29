@@ -46,7 +46,7 @@ func main() {
 
 	r.LoadHTMLGlob(filepath.Join(basePath, "/web/templates/**/*.html"))
 
-	store := cookie.NewStore([]byte(os.Getenv("SECRET_KEY")))
+	store := cookie.NewStore([]byte(os.Getenv(	"SECRET_KEY")))
 	r.Use(sessions.Sessions("mysession", store))
 	router.SetupRoutes(r)
 

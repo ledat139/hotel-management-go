@@ -1,0 +1,99 @@
+{{ template "head.html" . }}
+
+<body class=" bg-surface">
+  <main>
+    {{ template "header.html" . }}
+    <!--start the project-->
+    <div id="main-wrapper" class="flex p-5 xl:pr-0">
+      <!-- sidebar -->
+      {{ template "sidebar.html" . }}
+      <!--end sidebar -->
+      <div class=" w-full page-wrapper xl:px-6 px-0">
+
+        <!-- Main Content -->
+        <main class="h-full  max-w-full">
+          <div class="container full-container p-0 flex flex-col gap-6">
+            <div class="card">
+              <div class="card-body ">
+                <div class="flex justify-between items-center mb-4">
+                  <h2 class="text-lg font-semibold">{{ call .T .Title }}</h2>
+                  <a href="/admin/rooms" class="text-blue-600 hover:underline">{{ call .T "title.back_to_list" }}</a>
+                </div>
+                {{ if .error }}
+                <p class="text-red-500 text-sm mb-4">{{ call .T .error }}</p>
+                {{ end }}
+                <table class="table-auto border-collapse border border-gray-300 w-full mt-4">
+                  <tbody>
+                    <tr>
+                      <td class="font-semibold border px-4 py-2">{{ call .T "title.name" }}</td>
+                      <td class="border px-4 py-2">{{.Room.Name}}</td>
+                    </tr>
+                    <tr>
+                      <td class="font-semibold border px-4 py-2">{{ call .T "title.room_type" }}</td>
+                      <td class="border px-4 py-2">{{.Room.Type}}</td>
+                    </tr>
+                    <tr>
+                      <td class="font-semibold border px-4 py-2">{{ call .T "title.price_per_night" }}</td>
+                      <td class="border px-4 py-2">{{.Room.PricePerNight}} VND</td>
+                    </tr>
+                    <tr>
+                      <td class="font-semibold border px-4 py-2">{{ call .T "title.bed_num" }}</td>
+                      <td class="border px-4 py-2">{{.Room.BedNum}}</td>
+                    </tr>
+                    <tr>
+                      <td class="font-semibold border px-4 py-2">{{ call .T "title.air_conditioning" }}</td>
+                      <td class="border px-4 py-2">
+                        {{if .Room.HasAircon}}<img src="/assets/images/checked.png" class="w-5 h-5 inline">{{else}}<img
+                          src="/assets/images/remove.png" class="w-5 h-5 inline">{{end}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="font-semibold border px-4 py-2">{{ call .T "title.view_type" }}</td>
+                      <td class="border px-4 py-2">{{.Room.ViewType}}</td>
+                    </tr>
+                    <tr>
+                      <td class="font-semibold border px-4 py-2">{{ call .T "title.is_available" }}</td>
+                      <td class="border px-4 py-2">
+                        {{if .Room.IsAvailable}}<img src="/assets/images/checked.png"
+                          class="w-5 h-5 inline">{{else}}<img src="/assets/images/remove.png"
+                          class="w-5 h-5 inline">{{end}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="font-semibold border px-4 py-2">{{ call .T "title.description" }}</td>
+                      <td class="border px-4 py-2 whitespace-pre-line text-gray-700">
+                        {{.Room.Description}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="mt-6 flex justify-end space-x-2">
+                  <a href="/admin/rooms/edit/{{.Room.ID}}"
+                    class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">{{ call .T "title.edit"
+                    }}</a>
+                </div>
+
+                {{if .Room.Images}}
+                <div class="mt-6">
+                  <h3 class="text-lg font-semibold mb-2">{{ call .T "title.room_image" }}</h3>
+                  <div class="grid grid-cols-3 gap-4">
+                    {{range .Room.Images}}
+                    <img src="{{.ImageURL}}" alt="Room Image" class="w-full h-40 object-cover rounded" />
+                    {{end}}
+                  </div>
+                </div>
+                {{end}}
+              </div>
+            </div>
+          </div>
+        </main>
+        <!-- Main Content End -->
+
+      </div>
+    </div>
+    <!--end of project-->
+  </main>
+  {{template "script.html" . }}
+</body>
+
+</html>

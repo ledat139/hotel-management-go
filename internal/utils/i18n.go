@@ -47,3 +47,22 @@ func T(c *gin.Context, messageID string) string {
 	}
 	return translated
 }
+
+func TmplTranslate(lang string) func(string) string {
+	return func(messageID string) string {
+		localizer := i18n.NewLocalizer(bundle, lang)
+		translated, err := localizer.Localize(&i18n.LocalizeConfig{MessageID: messageID})
+		if err != nil {
+			log.Printf("Missing translation for: %s", messageID)
+			return messageID
+		}
+		return translated
+	}
+}
+func TmplTranslateFromContext(c *gin.Context) func(string) string {
+	lang, exists := c.Get("lang")
+	if !exists {
+		lang = "en"
+	}
+	return TmplTranslate(lang.(string))
+}
