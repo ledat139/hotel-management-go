@@ -12,16 +12,28 @@ import (
 
 type AdminHandler struct {
 	authUseCase *admin_usecase.AuthUseCase
+	statUseCase *admin_usecase.StatUseCase
 }
 
-func NewAdminHandler(authUseCase *admin_usecase.AuthUseCase) *AdminHandler {
-	return &AdminHandler{authUseCase: authUseCase}
+func NewAdminHandler(authUseCase *admin_usecase.AuthUseCase, statUseCase *admin_usecase.StatUseCase) *AdminHandler {
+	return &AdminHandler{authUseCase: authUseCase, statUseCase: statUseCase}
 }
 
 func (h *AdminHandler) AdminDashboard(c *gin.Context) {
-	c.HTML(http.StatusOK, "home.html", gin.H{
-		"T":     utils.TmplTranslateFromContext(c),
+	stat, err := h.statUseCase.GetDashboardStatistics(c)
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "dashboard.html", gin.H{
+			"error": utils.T(c, "failed_to_load_statistics"),
+			"Title": "title.dashboard",
+			"T":     utils.TmplTranslateFromContext(c),
+		})
+		return
+	}
+
+	c.HTML(http.StatusOK, "dashboard.html", gin.H{
+		"stat":  stat,
 		"Title": "title.admin_dashboard",
+		"T":     utils.TmplTranslateFromContext(c),
 	})
 }
 

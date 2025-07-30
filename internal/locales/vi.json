@@ -123,5 +123,11 @@
   "error.booking_has_paid": "Hóa đơn phòng đã được thanh toán.",
   "error.failed_to_pay_booking": "Không thể thanh toán.",
   "error.failed_to_create_bill": "Không thể tạo hóa đơn.",
-  "error.invalid_ip_address": "Địa chỉ IP không hợp lệ."
+  "error.invalid_ip_address": "Địa chỉ IP không hợp lệ.",
+
+  "stat.total_rooms": "Tổng số phòng",
+  "stat.total_customers": "Tổng số khách hàng",
+  "stat.total_bookings": "Tổng số lượt đặt phòng",
+  "stat.total_revenue": "Tổng doanh thu",
+  "stat.revenue_chart": "Biểu đồ doanh thu"
 }

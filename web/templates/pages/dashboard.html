@@ -1,0 +1,66 @@
+{{ template "base.html" . }}
+{{ define "content" }}
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+  <!-- Total Rooms -->
+  <div class="bg-white rounded-2xl shadow p-5 border-l-4 border-indigo-500 hover:shadow-lg transition">
+    <div class="flex items-center gap-4">
+      <div class="p-3 bg-indigo-100 rounded-full">
+        <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500 font-medium">{{ call .T "stat.total_rooms" }}</p>
+        <h3 class="text-2xl font-bold text-indigo-600">{{ .stat.TotalRooms }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total Customers -->
+  <div class="bg-white rounded-2xl shadow p-5 border-l-4 border-green-500 hover:shadow-lg transition">
+    <div class="flex items-center gap-4">
+      <div class="p-3 bg-green-100 rounded-full">
+        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M5.121 17.804A13.937 13.937 0 0112 15c2.21 0 4.29.536 6.121 1.485M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500 font-medium">{{ call .T "stat.total_customers" }}</p>
+        <h3 class="text-2xl font-bold text-green-600">{{ .stat.TotalCustomers }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total Bookings -->
+  <div class="bg-white rounded-2xl shadow p-5 border-l-4 border-yellow-500 hover:shadow-lg transition">
+    <div class="flex items-center gap-4">
+      <div class="p-3 bg-yellow-100 rounded-full">
+        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 4h10M5 11h14M5 15h14M5 19h14" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500 font-medium">{{ call .T "stat.total_bookings" }}</p>
+        <h3 class="text-2xl font-bold text-yellow-600">{{ .stat.TotalBookings }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total Revenue -->
+  <div class="bg-white rounded-2xl shadow p-5 border-l-4 border-red-500 hover:shadow-lg transition">
+    <div class="flex items-center gap-4">
+      <div class="p-3 bg-red-100 rounded-full">
+        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 8c-1.105 0-2 .672-2 1.5S10.895 11 12 11s2 .672 2 1.5S13.105 14 12 14m0-6v6m0 4h.01" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500 font-medium">{{ call .T "stat.total_revenue" }}</p>
+        <h3 class="text-2xl font-bold text-red-600">{{ printf "%.0f" .stat.TotalRevenue }} VND</h3>
+      </div>
+    </div>
+  </div>
+</div>
+{{ end }}

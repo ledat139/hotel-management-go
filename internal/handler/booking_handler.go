@@ -105,7 +105,7 @@ func (h *BookingHandler) GetBookingHistory(c *gin.Context) {
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 404 {object} map[string]string "Booking not found"
 // @Failure 500 {object} map[string]string "Failed to cancel booking"
-// @Router bookings//{id}/cancel" [get]
+// @Router /bookings/{id}/cancel [get]
 // @Security BearerAuth
 func (h *BookingHandler) CancelBooking(c *gin.Context) {
 	bookingIDStr := c.Param("id")
@@ -136,5 +136,3 @@ func (h *BookingHandler) CancelBooking(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": utils.T(c, "success.booking_cancelled")})
 }
-
-
