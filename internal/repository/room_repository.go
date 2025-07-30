@@ -21,8 +21,10 @@ type RoomRepository interface {
 	UpdateRoomTx(ctx context.Context, tx *gorm.DB, room *models.Room) error
 	DeleteRoomImageTx(ctx context.Context, tx *gorm.DB, id int) error
 	DeleteRoomTx(ctx context.Context, tx *gorm.DB, id int) error
+	DeleteRoom(ctx context.Context, id int) error
 	FindRoomImageByRoomID(ctx context.Context, id int) ([]models.RoomImage, error)
 	DeleteRoomImagesByRoomIDTx(ctx context.Context, tx *gorm.DB, roomID int) error
+	SearchRooms(ctx context.Context, query dto.RoomQuery) ([]models.Room, error)
 }
 
 type roomRepository struct {
@@ -61,7 +63,7 @@ func (r *roomRepository) FindAvailableRoom(ctx context.Context, searchRoomReques
 		db = db.Where("price_per_night BETWEEN ? AND ?", *searchRoomRequest.MinPrice, *searchRoomRequest.MaxPrice)
 	}
 
-	if err := db.Find(&rooms).Error; err != nil {		
+	if err := db.Find(&rooms).Error; err != nil {
 		return nil, err
 	}
 	return rooms, nil
@@ -116,6 +118,13 @@ func (r *roomRepository) DeleteRoomTx(ctx context.Context, tx *gorm.DB, id int) 
 	return nil
 }
 
+func (r *roomRepository) DeleteRoom(ctx context.Context, id int) error {
+	err := r.db.WithContext(ctx).Where("id = ?", id).Delete(&models.Room{}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func (r *roomRepository) UpdateRoomTx(ctx context.Context, tx *gorm.DB, room *models.Room) error {
 	err := tx.Model(&room).Select(
 		"Name", "Type", "PricePerNight", "BedNum", "HasAircon",
@@ -165,4 +174,29 @@ func (r *roomRepository) FindRoomImageByRoomID(ctx context.Context, id int) ([]m
 		return nil, err
 	}
 	return roomImage, nil
+}
+
+func (r *roomRepository) SearchRooms(ctx context.Context, query dto.RoomQuery) ([]models.Room, error) {
+	var rooms []models.Room
+	tx := r.db.WithContext(ctx)
+
+	if query.Name != "" {
+		tx = tx.Where("name LIKE ?", "%"+query.Name+"%")
+	}
+
+	if query.HasAircon == "true" {
+		tx = tx.Where("has_aircon = ?", true)
+	} else if query.HasAircon == "false" {
+		tx = tx.Where("has_aircon = ?", false)
+	}
+
+	if query.MinPrice > 0 {
+		tx = tx.Where("price_per_night >= ?", query.MinPrice)
+	}
+	if query.MaxPrice > 0 {
+		tx = tx.Where("price_per_night <= ?", query.MaxPrice)
+	}
+
+	err := tx.Order("created_at DESC").Find(&rooms).Error
+	return rooms, err
 }
