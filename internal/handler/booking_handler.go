@@ -136,3 +136,5 @@ func (h *BookingHandler) CancelBooking(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": utils.T(c, "success.booking_cancelled")})
 }
+
+
