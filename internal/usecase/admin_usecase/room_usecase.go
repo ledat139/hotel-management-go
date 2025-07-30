@@ -150,36 +150,34 @@ func (u *RoomUseCase) GetRoomByID(ctx context.Context, id int) (*models.Room, er
 }
 
 func (u *RoomUseCase) DeleteRoom(ctx context.Context, id int) error {
-	db := u.roomRepo.GetDB()
-	return utils.WithTransaction(db, func(tx *gorm.DB) error {
-		//1. Delete Room Images
-		images, err := u.roomRepo.FindRoomImageByRoomID(ctx, id)
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("error.failed_to_get_room_images")
-		}
-		err = u.roomRepo.DeleteRoomImagesByRoomIDTx(ctx, tx, id)
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("error.failed_to_delete_images")
-		}
-		for _, img := range images {
-			filename := filepath.Base(img.ImageURL)
-			_ = os.Remove(filepath.Join(constant.UploadDir, filename))
-		}
+	if err := u.roomRepo.DeleteRoom(ctx, id); err != nil {
+		return errors.New("error.failed_to_delete_room")
+	}
+	return nil
+}
 
-		//2. Delete Reviews
-		if err := u.reviewRepo.DeleteByRoomIDTx(ctx, tx, id); err != nil {
-			return errors.New("error.failed_to_delete_review")
-		}
+func (u *RoomUseCase) SearchRooms(ctx context.Context, query dto.RoomQuery) ([]models.Room, error) {
+	return u.roomRepo.SearchRooms(ctx, query)
+}
 
-		//3. Delete BookingRooms
-		if err := u.bookingRepo.DeleteBookingRoomByRoomIDTx(ctx, tx, id); err != nil {
-			return errors.New("error.failed_to_delete_booking")
+func (u *RoomUseCase) GetRoomDetail(ctx context.Context, id int) (*dto.RoomDetailResponse, error) {
+	room, err := u.roomRepo.FindRoomByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("error.room_not_found")
 		}
-		//4. Delete Room
-		if err := u.roomRepo.DeleteRoomTx(ctx, tx, id); err != nil {
-			return errors.New("error.failed_to_delete_room")
+		return nil, errors.New("error.failed_to_get_room")
+	}
+	activeBookings, err := u.bookingRepo.GetActiveBookingsByRoomID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("error.booking_not_found")
 		}
+		return nil, errors.New("error.failed_to_get_booking")
+	}
 
-		return nil
-	})
+	return &dto.RoomDetailResponse{
+		Room:           room,
+		ActiveBookings: activeBookings,
+	}, nil
 }

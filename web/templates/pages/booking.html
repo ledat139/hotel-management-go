@@ -1,0 +1,116 @@
+{{ template "head.html" . }}
+{{ $t := .T }}
+
+<body class=" bg-surface">
+  <main>
+    {{ template "header.html" . }}
+    <!--start the project-->
+    <div id="main-wrapper" class="flex p-5 xl:pr-0">
+      <!-- sidebar -->
+      {{ template "sidebar.html" . }}
+      <!--end sidebar -->
+      <div class=" w-full page-wrapper xl:px-6 px-0">
+        <!-- Main Content -->
+        <main class="h-full  max-w-full">
+          <div class="container full-container p-0 flex flex-col gap-6">
+            <div class="card">
+              <div class="card-body h-screen">
+                <div class="flex justify-between items-center mb-6">
+                  <h1 class="text-lg font-semibold">{{ call .T .Title}}</h1>
+                  <form method="get" action="/admin/bookings" class="mb-4 flex flex-wrap items-center gap-4">
+                    <input type="text" name="user_name" placeholder="User Name" value="{{.filters.UserName}}"
+                      class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <select name="booking_status"
+                      class="w-[3rem] px-5 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="">All Status</option>
+                      <option value="booked" {{if eq .filters.BookingStatus "booked" }}selected{{end}}>Booked</option>
+                      <option value="cancelled" {{if eq .filters.BookingStatus "cancelled" }}selected{{end}}>Cancelled
+                      </option>
+                      <option value="checked_in" {{if eq .filters.BookingStatus "checked_in" }}selected{{end}}>
+                        Checked-in</option>
+                      <option value="checked_out" {{if eq .filters.BookingStatus "checked_out" }}selected{{end}}>
+                        Checked-out</option>
+                    </select>
+
+                    <button type="submit"
+                      class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                      {{ call .T "title.Search"}}
+                    </button>
+                  </form>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
+                    <thead class="bg-gray-200 text-gray-700">
+                      <tr>
+                        <th class="px-4 py-3">ID</th>
+                        <th class="px-4 py-3">{{ call .T "user.name" }}</th>
+                        <th class="px-4 py-3">{{ call .T "booking.date_range" }}</th>
+                        <th class="px-4 py-3">{{ call .T "booking.total_price" }}</th>
+                        <th class="px-4 py-3">{{ call .T "booking.status" }}</th>
+                        <th class="px-4 py-3">{{ call .T "booking.is_paid" }}</th>
+                        <th class="px-4 py-3">{{ call .T "booking.actions" }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {{ if not .Bookings }}
+                      <tr>
+                        <td colspan="100%" class="text-center py-4 text-gray-500">{{ call .T "booking.no_bookings_found"
+                          }}</td>
+                      </tr>
+                      {{ else }}
+                      {{range .Bookings}}
+                      <tr class="border-t hover:bg-gray-50">
+                        <td class="px-4 py-2">{{ .ID }}</td>
+                        <td class="px-4 py-2">{{ .User.Name }}</td>
+                        <td class="px-4 py-2">{{ .StartDate.Format "2006-01-02" }} → {{ .EndDate.Format "2006-01-02" }}
+                        </td>
+                        <td class="px-4 py-2">{{ printf "%.0f" .TotalPrice }}VND</td>
+                        <td class="px-4 py-2 capitalize">
+                          {{ if eq .BookingStatus "booked" }}
+                          <span class="px-2 py-1 rounded-full bg-blue-500 text-blue-700 text-sm font-medium">{{
+                            .BookingStatus }}</span>
+                          {{ else if eq .BookingStatus "checked_in" }}
+                          <span class="px-2 py-1 rounded-full bg-green-400 text-green-700 text-sm font-medium">{{
+                            .BookingStatus }}</span>
+                          {{ else if eq .BookingStatus "checked_out" }}
+                          <span class="px-2 py-1 rounded-full bg-gray-200 text-gray-800 text-sm font-medium">{{
+                            .BookingStatus }}</span>
+                          {{ else if eq .BookingStatus "cancelled" }}
+                          <span class="px-2 py-1 rounded-full bg-red-400 text-red-700 text-sm font-medium">{{
+                            .BookingStatus }}</span>
+                          {{ else if eq .BookingStatus "no_show" }}
+                          <span class="px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 text-sm font-medium">{{
+                            .BookingStatus }}</span>
+                          {{ end }}
+                        </td>
+                        <td class="px-4 py-2">
+                          {{if .IsPaid}}<img src="/assets/images/checked.png" class="w-5 h-5 inline">{{else}}<img
+                            src="/assets/images/remove.png" class="w-5 h-5 inline">{{end}}
+                        </td>
+                        <td class="px-4 py-2 space-x-2">
+                          <a href="/admin/bookings/{{.ID}}"
+                            class="text-blue-500 hover:underline inline-flex items-center py-2 px-4 rounded-xl font-semibold bg-blue-100">
+                            {{ call $t "title.view" }}</a>
+                          <a href="/admin/bookings/edit/{{.ID}}"
+                            class="text-yellow-500 hover:underline inline-flex items-center py-2 px-4 rounded-xl font-semibold bg-yellow-100">
+                            {{ call $t "title.edit" }}</a>
+                        </td>
+                      </tr>
+                      {{end}}
+                      {{ end }}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+        <!-- Main Content End -->
+      </div>
+    </div>
+    <!--end of project-->
+  </main>
+  {{template "script.html" . }}
+</body>
+
+</html>

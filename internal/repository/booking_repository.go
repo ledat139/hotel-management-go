@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"hotel-management/internal/constant"
 	"hotel-management/internal/models"
 	"time"
 
@@ -21,6 +22,9 @@ type BookingRepository interface {
 	GetBookingByID(ctx context.Context, bookingID uint) (*models.Booking, error)
 	GetBookingByIDTx(ctx context.Context, tx *gorm.DB, bookingID uint) (*models.Booking, error)
 	UpdateBookingTx(ctx context.Context, tx *gorm.DB, booking *models.Booking) error
+	GetAllBookingsWithUser(ctx context.Context) ([]models.Booking, error)
+	SearchBookings(ctx context.Context, userName, bookingStatus string) ([]models.Booking, error)
+	GetActiveBookingsByRoomID(ctx context.Context, roomID int) ([]models.Booking, error)
 }
 
 type bookingRepository struct {
@@ -101,7 +105,7 @@ func (r *bookingRepository) GetBookingByBookingIDAndUserID(ctx context.Context, 
 }
 func (r *bookingRepository) GetBookingByID(ctx context.Context, bookingID uint) (*models.Booking, error) {
 	var booking models.Booking
-	if err := r.db.WithContext(ctx).First(&booking, bookingID).Error; err != nil {
+	if err := r.db.WithContext(ctx).Preload("User").Preload("BookingRooms.Room").First(&booking, bookingID).Error; err != nil {
 		return nil, err
 	}
 	return &booking, nil
@@ -121,6 +125,12 @@ func (r *bookingRepository) UpdateBooking(ctx context.Context, booking *models.B
 	}
 	return nil
 }
+
+func (r *bookingRepository) GetAllBookingsWithUser(ctx context.Context) ([]models.Booking, error) {
+	var bookings []models.Booking
+	err := r.db.WithContext(ctx).Preload("User").Find(&bookings).Error
+	return bookings, err
+}
 func (r *bookingRepository) UpdateBookingTx(ctx context.Context, tx *gorm.DB, booking *models.Booking) error {
 	err := tx.WithContext(ctx).Updates(&booking).Error
 	if err != nil {
@@ -128,3 +138,33 @@ func (r *bookingRepository) UpdateBookingTx(ctx context.Context, tx *gorm.DB, bo
 	}
 	return nil
 }
+
+func (r *bookingRepository) SearchBookings(ctx context.Context, userName, bookingStatus string) ([]models.Booking, error) {
+	var bookings []models.Booking
+	query := r.db.WithContext(ctx).Model(&models.Booking{}).Preload("User").Preload("BookingRooms.Room")
+
+	if userName != "" {
+		query = query.Joins("JOIN users ON users.id = bookings.user_id").Where("users.name LIKE ?", "%"+userName+"%")
+	}
+
+	if bookingStatus != "" {
+		query = query.Where("bookings.booking_status = ?", bookingStatus)
+	}
+
+	err := query.Order("bookings.created_at DESC").Find(&bookings).Error
+	if err != nil {
+		return nil, err
+	}
+	return bookings, nil
+}
+
+func (r *bookingRepository) GetActiveBookingsByRoomID(ctx context.Context, roomID int) ([]models.Booking, error) {
+	var bookings []models.Booking
+	err := r.db.WithContext(ctx).
+		Preload("User").
+		Joins("JOIN booking_rooms on bookings.id = booking_rooms.booking_id").
+		Where("room_id = ? AND start_date <= NOW() AND end_date >= NOW() and booking_status = ?", roomID, constant.CHECKED_IN).
+		Find(&bookings).Error
+	return bookings, err
+}
+	
