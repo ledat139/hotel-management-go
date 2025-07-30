@@ -1,0 +1,14 @@
+package dto
+
+type CreateStaffRequest struct {
+	FullName string `form:"full_name" binding:"required"`
+	Email    string `form:"email" binding:"required,email"`
+	Phone    string `form:"phone" binding:"required"`
+	Password string `form:"password" binding:"required,min=6"`
+}
+
+type UpdateStaffRequest struct {
+	FullName string `form:"full_name"`
+	Phone    string `form:"phone"`
+	Password string `form:"password"`
+}

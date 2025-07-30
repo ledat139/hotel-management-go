@@ -52,12 +52,18 @@ func SetupRoutes(r *gin.Engine) {
 	bookingRepository := repository.NewBookingRepository(database.DB)
 	roomAdminUseCase := admin_usecase.NewRoomUseCase(roomRepository, bookingRepository, reviewRepository)
 	roomAdminHandler := admin.NewRoomHandler(roomAdminUseCase)
+	billRepository := repository.NewBillRepository(database.DB)
+	billUseCase := admin_usecase.NewBillUseCase(billRepository)
+	billHandler := admin.NewBillHandler(billUseCase)
+	staffUseCase := admin_usecase.NewStaffUseCase(userRepository)
+	staffHandler := admin.NewStaffHandler(staffUseCase)
 	adminGroup := r.Group("/admin")
 	{
-		adminGroup.GET("/", middleware.RequireLogin(), middleware.RequireRoles("admin"), adminHandler.AdminDashboard)
+		adminGroup.GET("/", middleware.RequireLogin(), middleware.RequireRoles("admin", "staff"), adminHandler.AdminDashboard)
 		adminGroup.GET("/login", adminHandler.AdminLoginPage)
 		adminGroup.POST("/login", adminHandler.HandleLogin)
 		adminGroup.GET("/logout", adminHandler.HandleLogout)
+
 		adminGroup.GET("/rooms", middleware.RequireRoles("admin", "staff"), roomAdminHandler.RoomManagementPage)
 		adminGroup.GET("/rooms/create", middleware.RequireRoles("admin", "staff"), roomAdminHandler.CreateRoomPage)
 		adminGroup.POST("/rooms/create", middleware.RequireRoles("admin", "staff"), roomAdminHandler.CreateRoom)
@@ -65,6 +71,17 @@ func SetupRoutes(r *gin.Engine) {
 		adminGroup.GET("/rooms/edit/:id", middleware.RequireRoles("admin", "staff"), roomAdminHandler.EditRoomPage)
 		adminGroup.POST("/rooms/edit/:id", middleware.RequireRoles("admin", "staff"), roomAdminHandler.UpdateRoom)
 		adminGroup.POST("/rooms/delete/:id", middleware.RequireRoles("admin", "staff"), roomAdminHandler.DeleteRoom)
+
+		adminGroup.GET("/bills", middleware.RequireRoles("admin", "staff"), billHandler.ListBills)
+
+		adminGroup.GET("/staffs", middleware.RequireRoles("admin"), staffHandler.ListStaffs)
+		adminGroup.GET("/staffs/create", middleware.RequireRoles("admin"), staffHandler.CreateStaffPage)
+		adminGroup.POST("/staffs/create", middleware.RequireRoles("admin"), staffHandler.CreateStaff)
+		adminGroup.GET("/staffs/edit/:id", middleware.RequireRoles("admin"), staffHandler.EditStaffPage)
+		adminGroup.POST("/staffs/edit/:id", middleware.RequireRoles("admin"), staffHandler.EditStaff)
+		adminGroup.POST("/staffs/delete/:id", middleware.RequireRoles("admin"), staffHandler.DeleteStaff)
+
+		adminGroup.GET("/customers", middleware.RequireRoles("admin"), staffHandler.ListCustomers)
 	}
 	//User routes
 	userHandler := handler.NewUserHandler(userUseCase)
@@ -91,7 +108,6 @@ func SetupRoutes(r *gin.Engine) {
 
 	//Payment routes
 	paymentRepository := repository.NewPaymentRepository(database.DB)
-	billRepository := repository.NewBillRepository(database.DB)
 	paymentUseCase := usecase.NewPaymentUseCase(paymentRepository, bookingRepository, billRepository)
 	paymentHandler := handler.NewPaymentHandler(paymentUseCase)
 	paymentGroup := r.Group("/payments")

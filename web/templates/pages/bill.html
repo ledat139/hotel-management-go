@@ -1,0 +1,99 @@
+{{ template "head.html" . }}
+{{ $t := .T }}
+
+<body class="bg-surface">
+  <main>
+    {{ template "header.html" . }}
+    <div id="main-wrapper" class="flex p-5 xl:pr-0">
+      {{ template "sidebar.html" . }}
+      <div class="w-full page-wrapper xl:px-6 px-0">
+        <main class="h-full max-w-full">
+          <div class="container full-container p-0 flex flex-col gap-6">
+            <div class="card">
+              <div class="card-body h-screen">
+                <div class="flex justify-between items-center mb-6">
+                  <h1 class="text-lg font-semibold">{{ call .T .Title }}</h1>
+                </div>
+
+                <!-- Search Form -->
+                <form method="GET" action="/admin/bills" class="mb-6 flex flex-wrap gap-4 items-center">
+                  <div>
+                    <label for="user_email" class="block text-sm font-medium text-gray-700">{{ call $t
+                      "title.user_name" }}</label>
+                    <input type="text" name="user_name" id="user_email" value="{{.Query.UserName}}"
+                      class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-200" />
+                  </div>
+                  <div>
+                    <label for="booking_id" class="block text-sm font-medium text-gray-700">Booking ID</label>
+                    <input type="number" name="booking_id" id="booking_id" value="{{.Query.BookingID}}"
+                      class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-200" />
+                  </div>
+                  <div>
+                    <label for="export_date" class="block text-sm font-medium text-gray-700">{{ call $t
+                      "title.export_at" }}</label>
+                    <input type="date" name="export_date" id="export_date" value="{{.Query.ExportDate}}"
+                      class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-200" />
+                  </div>
+                  <div>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                      {{ call $t "title.search" }}
+                    </button>
+                  </div>
+                </form>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                  <table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
+                    <thead class="bg-gray-200 text-gray-700">
+                      <tr>
+                        <th class="px-4 py-3 text-left">#ID</th>
+                        <th class="px-4 py-3 text-left">{{ call $t "title.booking_id" }}</th>
+                        <th class="px-4 py-3 text-left">{{ call $t "title.user_email" }}</th>
+                        <th class="px-4 py-3 text-left">{{ call $t "title.user_name" }}</th>
+                        <th class="px-4 py-3 text-left">{{ call $t "title.total_amount" }}</th>
+                        <th class="px-4 py-3 text-left">{{ call $t "title.export_at" }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {{ if not .Bills }}
+                      <tr>
+                        <td colspan="6" class="px-4 py-4 text-center text-gray-500">
+                          {{ call $t "message.no_bills_found" }}
+                        </td>
+                      </tr>
+                      {{ else }}
+                      {{range .Bills}}
+                      <tr class="border-t hover:bg-gray-50">
+                        <td class="px-4 py-2 text-gray-700">{{.ID}}</td>
+                        <td class="px-4 py-2 text-gray-700">{{.BookingID}}</td>
+                        {{ if .Booking }}
+                        {{ if .Booking.User }}
+                        <td class="px-4 py-2 text-gray-700">{{.Booking.User.Email}}</td>
+                        <td class="px-4 py-2 text-gray-700">{{.Booking.User.Name}}</td>
+                        {{ else }}
+                        <td class="px-4 py-2 text-red-500 italic">No user</td>
+                        <td class="px-4 py-2 text-red-500 italic">No name</td>
+                        {{ end }}
+                        {{ else }}
+                        <td colspan="2" class="px-4 py-2 text-red-500 italic">No booking</td>
+                        {{ end }}
+                        <td class="px-4 py-2 text-gray-700">{{ printf "%.0f" .TotalAmount}} VND</td>
+                        <td class="px-4 py-2 text-gray-700">{{ .ExportAt.Format "02/01/2006" }}</td>
+                      </tr>
+                      {{end}}
+                      {{ end }}
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </main>
+  {{ template "script.html" . }}
+</body>
+
+</html>
