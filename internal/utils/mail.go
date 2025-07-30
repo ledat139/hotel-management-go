@@ -59,6 +59,7 @@ func SendVerificationEmail(userEmail string, token string) error {
 
 	return SendEmail(userEmail, subject, html)
 }
+
 func SendResetPassword(userEmail string, resetPassword string) error {
 	subject := "Reset Your Password"
 	html := fmt.Sprintf(`
@@ -69,4 +70,16 @@ func SendResetPassword(userEmail string, resetPassword string) error {
 		<p>Regards,<br>Hotel Management Team</p>
 	`, resetPassword)
 	return SendEmail(userEmail, subject, html)
+}
+
+func SendStaffPassword(staffEmail string, password string) error {
+	subject := "Your Password"
+	html := fmt.Sprintf(`
+		<h2>Hello,</h2>
+		<p>Here is your password:</p>
+		<p style="font-size: 18px; font-weight: bold;">%s</p>
+		<br>
+		<p>Regards,<br>Hotel Management Team</p>
+	`, password)
+	return SendEmail(staffEmail, subject, html)
 }
