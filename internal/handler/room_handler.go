@@ -5,6 +5,7 @@ import (
 	"hotel-management/internal/usecase"
 	"hotel-management/internal/utils"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -36,6 +37,10 @@ func (h *RoomHandler) FindAvailableRoom(c *gin.Context) {
 	}
 	if !searchRoomRequest.EndDate.After(searchRoomRequest.StartDate) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.start_date_must_be_before_end_date")})
+		return
+	}
+	if searchRoomRequest.StartDate.Before(time.Now()) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.start_date_must_be_today_or_future")})
 		return
 	}
 	if searchRoomRequest.MinPrice != nil && searchRoomRequest.MaxPrice != nil && *searchRoomRequest.MinPrice > *searchRoomRequest.MaxPrice {

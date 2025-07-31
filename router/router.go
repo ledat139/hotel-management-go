@@ -42,8 +42,10 @@ func SetupRoutes(r *gin.Engine) {
 	}
 
 	//Admin route
+	statRepository := repository.NewStatRepository(database.DB)
 	adminAuthUseCase := admin_usecase.NewAuthUseCase(userRepository)
-	adminHandler := admin.NewAdminHandler(adminAuthUseCase)
+	statUseCase := admin_usecase.NewStatUseCase(statRepository)
+	adminHandler := admin.NewAdminHandler(adminAuthUseCase, statUseCase)
 
 	roomRepository := repository.NewRoomRepository(database.DB)
 	reviewRepository := repository.NewReviewRepository(database.DB)

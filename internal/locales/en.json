@@ -125,5 +125,11 @@
   "error.booking_has_paid": "Booking has paid.",
   "error.failed_to_pay_booking": "Failed to pay booking.",
   "error.failed_to_create_bill": "Failed to create bill.",
-  "error.invalid_ip_address" : "Invalid IP address."
+  "error.invalid_ip_address": "Invalid IP address.",
+
+  "stat.total_rooms": "Total rooms",
+  "stat.total_customers": "Total customers",
+  "stat.total_bookings": "Total bookings",
+  "stat.total_revenue": "Total revenue",
+  "stat.revenue_chart": "Revenue chart"
 }

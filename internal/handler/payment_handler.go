@@ -19,6 +19,17 @@ func NewPaymentHandler(paymentUseCase *usecase.PaymentUseCase) *PaymentHandler {
 	return &PaymentHandler{paymentUseCase: paymentUseCase}
 }
 
+// GetVnPayUrl godoc
+// @Summary      Create VnPay payment URL
+// @Description  Generate a payment URL via VnPay for a specific booking.
+// @Tags         payments
+// @Param        id   path      int  true  "Booking ID"
+// @Success      200  {object}  map[string]string  "VnPay payment URL generated successfully"
+// @Failure      400  {object}  map[string]string  "Invalid amount or invalid IP address"
+// @Failure      404  {object}  map[string]string  "Booking not found"
+// @Failure      409  {object}  map[string]string  "Booking has already been paid"
+// @Failure      500  {object}  map[string]string  "Failed to create payment or save payment info"
+// @Router       /payments/{id}/vnpay [get]
 func (h *PaymentHandler) GetVnPayUrl(c *gin.Context) {
 	bookingIDStr := c.Param("id")
 	clientIP := c.ClientIP()
@@ -49,6 +60,19 @@ func (h *PaymentHandler) GetVnPayUrl(c *gin.Context) {
 	})
 }
 
+// HandleVnpayCallback godoc
+// @Summary      Process VnPay callback
+// @Description  Handle the response returned from VnPay after a payment attempt.
+// @Tags         payments
+// @Param        vnp_TxnRef          query  string  true  "Transaction Reference"
+// @Param        vnp_ResponseCode    query  string  true  "VnPay Response Code"
+// @Param        vnp_TransactionNo   query  string  true  "VnPay Transaction Number"
+// @Success      200  {object}  map[string]string  "Payment processed successfully"
+// @Failure      400  {object}  map[string]string  "Invalid callback parameters"
+// @Failure      404  {object}  map[string]string  "Payment not found"
+// @Failure      409  {object}  map[string]string  "Payment has already been processed or booking already paid"
+// @Failure      500  {object}  map[string]string  "Failed to update payment, process payment, or create bill"
+// @Router       /payments/vnpay_return [get]
 func (h *PaymentHandler) HandleVnpayCallback(c *gin.Context) {
 	vnpTxnRef := c.Query("vnp_TxnRef")
 	vnpResponseCode := c.Query("vnp_ResponseCode")

@@ -1,5 +1,70 @@
 basePath: /
 definitions:
+  hotel-management_internal_dto.BookingHistoryResponse:
+    properties:
+      end_date:
+        type: string
+      id:
+        type: integer
+      is_paid:
+        type: boolean
+      rooms:
+        items:
+          $ref: '#/definitions/hotel-management_internal_dto.BookingHistoryRoom'
+        type: array
+      start_date:
+        type: string
+      status:
+        type: string
+      total_price:
+        type: number
+    type: object
+  hotel-management_internal_dto.BookingHistoryRoom:
+    properties:
+      bed_num:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      type:
+        type: string
+    type: object
+  hotel-management_internal_dto.CreateBookingRequest:
+    properties:
+      end_date:
+        type: string
+      room_ids:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+      start_date:
+        type: string
+    required:
+    - end_date
+    - room_ids
+    - start_date
+    type: object
+  hotel-management_internal_dto.CreateReviewRequest:
+    properties:
+      booking_id:
+        type: integer
+      comment:
+        type: string
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+      room_id:
+        type: integer
+    required:
+    - booking_id
+    - rating
+    - room_id
+    type: object
   hotel-management_internal_dto.LoginRequest:
     properties:
       email:
@@ -269,6 +334,122 @@ paths:
       summary: Register a new user
       tags:
       - Auth
+  /bookings:
+    post:
+      consumes:
+      - application/json
+      description: Allow a customer to create a booking with selected rooms and dates
+      parameters:
+      - description: Booking request payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/hotel-management_internal_dto.CreateBookingRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Booking created successfully.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Room is not available.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized access.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to create booking, get room price, or commit transaction.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new booking
+      tags:
+      - Booking
+  /bookings/{id}/cancel:
+    get:
+      description: Cancel a booking by ID if allowed
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Booking cancelled
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Booking not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to cancel booking
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Cancel a booking
+      tags:
+      - Booking
+  /bookings/history:
+    get:
+      description: Retrieve a list of past bookings for the authenticated customer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of booking history
+          schema:
+            items:
+              $ref: '#/definitions/hotel-management_internal_dto.BookingHistoryResponse'
+            type: array
+        "401":
+          description: Unauthorized access.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to get booking history.
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get booking history for current customer
+      tags:
+      - Booking
   /mail/reset-password:
     post:
       consumes:
@@ -395,6 +576,152 @@ paths:
       summary: Activate user account
       tags:
       - Mail
+  /payments/{id}/vnpay:
+    get:
+      description: Generate a payment URL via VnPay for a specific booking.
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: VnPay payment URL generated successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid amount or invalid IP address
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Booking not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Booking has already been paid
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to create payment or save payment info
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create VnPay payment URL
+      tags:
+      - payments
+  /payments/vnpay_return:
+    get:
+      description: Handle the response returned from VnPay after a payment attempt.
+      parameters:
+      - description: Transaction Reference
+        in: query
+        name: vnp_TxnRef
+        required: true
+        type: string
+      - description: VnPay Response Code
+        in: query
+        name: vnp_ResponseCode
+        required: true
+        type: string
+      - description: VnPay Transaction Number
+        in: query
+        name: vnp_TransactionNo
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Payment processed successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid callback parameters
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Payment not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Payment has already been processed or booking already paid
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to update payment, process payment, or create bill
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Process VnPay callback
+      tags:
+      - payments
+  /reviews:
+    post:
+      consumes:
+      - application/json
+      description: Customers can create a review after checking out from a room
+      parameters:
+      - description: Review content
+        in: body
+        name: review
+        required: true
+        schema:
+          $ref: '#/definitions/hotel-management_internal_dto.CreateReviewRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Review created successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request / already reviewed / not checked out
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Booking not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to create review
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a review for a completed booking
+      tags:
+      - Review
   /rooms/search:
     post:
       consumes:
