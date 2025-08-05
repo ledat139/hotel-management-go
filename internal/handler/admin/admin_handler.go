@@ -80,11 +80,7 @@ func (h *AdminHandler) HandleLogin(c *gin.Context) {
 		return
 	}
 
-	if user.Role == constant.ADMIN {
-		c.Redirect(http.StatusFound, constant.AdminHomePath)
-	} else {
-		c.Redirect(http.StatusFound, constant.StaffDashboardPath)
-	}
+	c.Redirect(http.StatusFound, constant.AdminHomePath)
 }
 
 func (h *AdminHandler) HandleLogout(c *gin.Context) {

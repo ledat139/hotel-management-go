@@ -8,10 +8,11 @@ const (
 	ImageURL              = "/assets/uploads/"
 	RoomManagementPath    = "/admin/rooms"
 	BookingManagementPath = "/admin/bookings"
-	ADMIN                 = "admin"
-	CUSTOMER              = "customer"
-	STAFF                 = "staff"
-	
+	StaffManagementPath   = "/admin/staffs"
+
+	ADMIN    = "admin"
+	CUSTOMER = "customer"
+	STAFF    = "staff"
 
 	PAYMENT_SUCCESS = "success"
 	PAYMENT_PENDING = "pending"
