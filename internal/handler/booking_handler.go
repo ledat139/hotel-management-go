@@ -6,6 +6,7 @@ import (
 	"hotel-management/internal/utils"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -39,6 +40,10 @@ func (h *BookingHandler) CreateBooking(c *gin.Context) {
 	}
 	if !createBookingRequest.EndDate.After(createBookingRequest.StartDate) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.start_date_must_be_before_end_date")})
+		return
+	}
+	if createBookingRequest.StartDate.Before(time.Now()) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.start_date_must_be_today_or_future")})
 		return
 	}
 	userIDStr, exists := c.Get("userID")
@@ -133,6 +138,5 @@ func (h *BookingHandler) CancelBooking(c *gin.Context) {
 		}
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"message": utils.T(c, "success.booking_cancelled")})
 }

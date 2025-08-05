@@ -52,6 +52,8 @@ func SetupRoutes(r *gin.Engine) {
 	bookingRepository := repository.NewBookingRepository(database.DB)
 	roomAdminUseCase := admin_usecase.NewRoomUseCase(roomRepository, bookingRepository, reviewRepository)
 	roomAdminHandler := admin.NewRoomHandler(roomAdminUseCase)
+	adminBookingUseCase := admin_usecase.NewBookingUseCase(bookingRepository)
+	adminBookingHandler := admin.NewAdminBookingHandler(adminBookingUseCase)
 	adminGroup := r.Group("/admin")
 	{
 		adminGroup.GET("/", middleware.RequireLogin(), middleware.RequireRoles("admin"), adminHandler.AdminDashboard)
@@ -65,6 +67,10 @@ func SetupRoutes(r *gin.Engine) {
 		adminGroup.GET("/rooms/edit/:id", middleware.RequireRoles("admin", "staff"), roomAdminHandler.EditRoomPage)
 		adminGroup.POST("/rooms/edit/:id", middleware.RequireRoles("admin", "staff"), roomAdminHandler.UpdateRoom)
 		adminGroup.POST("/rooms/delete/:id", middleware.RequireRoles("admin", "staff"), roomAdminHandler.DeleteRoom)
+		adminGroup.GET("/bookings", middleware.RequireRoles("admin", "staff"), adminBookingHandler.ListBookings)
+		adminGroup.GET("/bookings/:id", middleware.RequireRoles("admin", "staff"), adminBookingHandler.GetBookingDetail)
+		adminGroup.GET("/bookings/edit/:id", middleware.RequireRoles("admin", "staff"), adminBookingHandler.EditBookingPage)
+		adminGroup.POST("/bookings/edit/:id", middleware.RequireRoles("admin", "staff"), adminBookingHandler.EditBookingStatus)
 	}
 	//User routes
 	userHandler := handler.NewUserHandler(userUseCase)
