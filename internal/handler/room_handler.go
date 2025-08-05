@@ -32,24 +32,24 @@ func NewRoomHandler(roomUseCase *usecase.RoomUseCase) *RoomHandler {
 func (h *RoomHandler) FindAvailableRoom(c *gin.Context) {
 	var searchRoomRequest dto.SearchRoomRequest
 	if err := c.ShouldBindJSON(&searchRoomRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
 		return
 	}
 	if !searchRoomRequest.EndDate.After(searchRoomRequest.StartDate) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.start_date_must_be_before_end_date")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.start_date_must_be_before_end_date")})
 		return
 	}
 	if searchRoomRequest.StartDate.Before(time.Now()) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.start_date_must_be_today_or_future")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.start_date_must_be_today_or_future")})
 		return
 	}
 	if searchRoomRequest.MinPrice != nil && searchRoomRequest.MaxPrice != nil && *searchRoomRequest.MinPrice > *searchRoomRequest.MaxPrice {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.min_price_must_be_less_than_max_price")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.min_price_must_be_less_than_max_price")})
 		return
 	}
 	rooms, err := h.roomUseCase.SearchRoom(c.Request.Context(), &searchRoomRequest)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.failed_to_find_available_room")})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, "error.failed_to_find_available_room")})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{

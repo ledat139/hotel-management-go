@@ -34,28 +34,28 @@ func NewUserHandler(userUseCase *usecase.UserUseCase) *UserHandler {
 func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	var updateProfileRequest dto.UpdateProfileRequest
 	if err := c.ShouldBindJSON(&updateProfileRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
 		return
 	}
 	nameRegex := regexp.MustCompile(`^[a-zA-ZÀ-ỹà-ỹ\s]+$`)
 	if !nameRegex.MatchString(updateProfileRequest.Name) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
 		return
 	}
 	userEmail, exists := c.Get("userEmail")
 	if !exists {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
 		return
 	}
 	err := h.userUseCase.UpdateUserProfile(c.Request.Context(), &updateProfileRequest, userEmail.(string))
 	if err != nil {
 		switch err.Error() {
 		case "error.get_user_failed":
-			c.JSON(http.StatusNotFound, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusNotFound, gin.H{"message": utils.T(c, err.Error())})
 		case "error.failed_to_update_user":
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, err.Error())})
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.internal_server")})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, "error.internal_server")})
 		}
 		return
 	}

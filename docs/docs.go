@@ -256,6 +256,11 @@ const docTemplate = `{
         },
         "/bookings": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Allow a customer to create a booking with selected rooms and dates",
                 "consumes": [
                     "application/json"
@@ -280,39 +285,33 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Booking created successfully.",
+                        "description": "Response with booking details and payment URL",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/hotel-management_internal_dto.Response"
                         }
                     },
                     "400": {
-                        "description": "Room is not available.",
+                        "description": "Invalid request data/Start date must be before end date/Room is not available/Invalid client IP address",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/hotel-management_internal_dto.ErrorResponse"
                         }
                     },
                     "401": {
-                        "description": "Unauthorized access.",
+                        "description": "Unauthorized access",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/hotel-management_internal_dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Room not found",
+                        "schema": {
+                            "$ref": "#/definitions/hotel-management_internal_dto.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Failed to create booking, get room price, or commit transaction.",
+                        "description": "Failed to get room price/Failed to create booking/Failed to commit transaction",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/hotel-management_internal_dto.ErrorResponse"
                         }
                     }
                 }
@@ -344,21 +343,15 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Unauthorized access.",
+                        "description": "Unauthorized access",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/hotel-management_internal_dto.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Failed to get booking history.",
+                        "description": "Failed to get booking history",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/hotel-management_internal_dto.ErrorResponse"
                         }
                     }
                 }
@@ -703,71 +696,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/payments/{id}/vnpay": {
-            "get": {
-                "description": "Generate a payment URL via VnPay for a specific booking.",
-                "tags": [
-                    "payments"
-                ],
-                "summary": "Create VnPay payment URL",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Booking ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "VnPay payment URL generated successfully",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid amount or invalid IP address",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Booking not found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Booking has already been paid",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to create payment or save payment info",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/reviews": {
             "post": {
                 "security": [
@@ -1071,6 +999,14 @@ const docTemplate = `{
                 }
             }
         },
+        "hotel-management_internal_dto.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "hotel-management_internal_dto.LoginRequest": {
             "type": "object",
             "required": [
@@ -1132,6 +1068,15 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "minLength": 8
+                }
+            }
+        },
+        "hotel-management_internal_dto.Response": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "message": {
+                    "type": "string"
                 }
             }
         },
@@ -1218,6 +1163,13 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

@@ -25,53 +25,84 @@ func NewBookingHandler(bookingUseCase *usecase.BookingUseCase) *BookingHandler {
 // @Tags Booking
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param data body dto.CreateBookingRequest true "Booking request payload"
-// @Success 201 {object} map[string]string "Booking created successfully."
-// @Failure 400 {object} map[string]string "Invalid date range. Check-in date must be before check-out date."
-// @Failure 401 {object} map[string]string "Unauthorized access."
-// @Failure 400 {object} map[string]string "Room is not available."
-// @Failure 500 {object} map[string]string "Failed to create booking, get room price, or commit transaction."
+// @Success 201 {object} dto.Response "Response with booking details and payment URL"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request data/Start date must be before end date/Room is not available/Invalid client IP address"
+// @Failure 401 {object} dto.ErrorResponse "Unauthorized access"
+// @Failure 404 {object} dto.ErrorResponse "Room not found"
+// @Failure 500 {object} dto.ErrorResponse "Failed to get room price/Failed to create booking/Failed to commit transaction"
 // @Router /bookings [post]
 func (h *BookingHandler) CreateBooking(c *gin.Context) {
 	var createBookingRequest dto.CreateBookingRequest
 	if err := c.ShouldBindJSON(&createBookingRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, dto.Response{
+			Message: utils.T(c, "error.invalid_request"),
+		})
 		return
 	}
 	if !createBookingRequest.EndDate.After(createBookingRequest.StartDate) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.start_date_must_be_before_end_date")})
+		c.JSON(http.StatusBadRequest, dto.Response{
+			Message: utils.T(c, "error.start_date_must_be_before_end_date"),
+		})
 		return
 	}
 	if createBookingRequest.StartDate.Before(time.Now()) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.start_date_must_be_today_or_future")})
+		c.JSON(http.StatusBadRequest, dto.Response{
+			Message: utils.T(c, "error.start_date_must_be_today_or_future"),
+		})
 		return
 	}
 	userIDStr, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": utils.T(c, "error.unauthorized")})
+		c.JSON(http.StatusUnauthorized, dto.Response{
+			Message: utils.T(c, "error.unauthorized"),
+		})
 		return
 	}
 	userID, ok := userIDStr.(uint)
 	if !ok {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.unauthorized")})
+		c.JSON(http.StatusInternalServerError, dto.Response{
+			Message: utils.T(c, "error.unauthorized"),
+		})
 		return
 	}
-
-	err := h.bookingUseCase.CreateBooking(c.Request.Context(), &createBookingRequest, userID)
+	clientIP := c.ClientIP()
+	if clientIP == "" {
+		c.JSON(http.StatusBadRequest, dto.Response{
+			Message: utils.T(c, "error.invalid_client_ip"),
+		})
+		return
+	}
+	booking, paymentUrl, err := h.bookingUseCase.CreateBooking(c.Request.Context(), &createBookingRequest, userID, clientIP)
 	if err != nil {
 		switch err.Error() {
 		case "error.room_not_found":
-			c.JSON(http.StatusNotFound, gin.H{"error": utils.T(c, "error.room_not_found")})
+			c.JSON(http.StatusNotFound, dto.Response{
+				Message: utils.T(c, "error.room_not_found"),
+			})
 		case "error.room_is_not_available":
-			c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.room_is_not_available")})
+			c.JSON(http.StatusBadRequest, dto.Response{
+				Message: utils.T(c, "error.room_is_not_available"),
+			})
 		case "error.failed_to_get_room_price", "error.failed_to_create_booking", "error.failed_to_commit_transaction":
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusInternalServerError, dto.Response{
+				Message: utils.T(c, err.Error()),
+			})
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusInternalServerError, dto.Response{
+				Message: utils.T(c, err.Error()),
+			})
 		}
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"message": utils.T(c, "success.booking_created")})
+	c.JSON(http.StatusCreated, dto.Response{
+		Message: utils.T(c, "success.booking_created"),
+		Data: gin.H{
+			"booking":     booking,
+			"payment_url": paymentUrl,
+		},
+	})
 }
 
 // GetBookingHistory godoc
@@ -81,19 +112,30 @@ func (h *BookingHandler) CreateBooking(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {array} dto.BookingHistoryResponse "List of booking history"
-// @Failure 401 {object} map[string]string "Unauthorized access."
-// @Failure 500 {object} map[string]string "Failed to get booking history."
+// @Failure 401 {object} dto.ErrorResponse "Unauthorized access"
+// @Failure 500 {object} dto.ErrorResponse "Failed to get booking history"
 // @Router /bookings/history [get]
 func (h *BookingHandler) GetBookingHistory(c *gin.Context) {
-	userID, exists := c.MustGet("userID").(uint)
+	userIDStr, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": utils.T(c, "error.unauthorized")})
+		c.JSON(http.StatusUnauthorized, dto.Response{
+			Message: utils.T(c, "error.unauthorized"),
+		})
+		return
+	}
+	userID, ok := userIDStr.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, dto.Response{
+			Message: utils.T(c, "error.unauthorized"),
+		})
 		return
 	}
 
 	bookings, err := h.bookingUseCase.GetBookingHistory(c.Request.Context(), userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.failed_to_get_booking_history")})
+		c.JSON(http.StatusInternalServerError, dto.Response{
+			Message: utils.T(c, "error.failed_to_get_booking_history"),
+		})
 		return
 	}
 
@@ -116,13 +158,13 @@ func (h *BookingHandler) CancelBooking(c *gin.Context) {
 	bookingIDStr := c.Param("id")
 	bookingID, err := strconv.Atoi(bookingIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
 		return
 	}
 
 	userID, exists := c.MustGet("userID").(uint)
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": utils.T(c, "error.unauthorized")})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": utils.T(c, "error.unauthorized")})
 		return
 	}
 
@@ -130,11 +172,11 @@ func (h *BookingHandler) CancelBooking(c *gin.Context) {
 	if err != nil {
 		switch err.Error() {
 		case "error.booking_not_found":
-			c.JSON(http.StatusNotFound, gin.H{"error": utils.T(c, "error.booking_not_found")})
+			c.JSON(http.StatusNotFound, gin.H{"message": utils.T(c, "error.booking_not_found")})
 		case "error.failed_to_cancel_booking":
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.failed_to_cancel_booking")})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, "error.failed_to_cancel_booking")})
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, err.Error())})
 		}
 		return
 	}

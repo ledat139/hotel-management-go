@@ -38,33 +38,33 @@ func NewReviewHandler(reviewUseCase *usecase.ReviewUseCase) *ReviewHandler {
 func (h *ReviewHandler) CreateReview(c *gin.Context) {
 	var createReviewRequest dto.CreateReviewRequest
 	if err := c.ShouldBindJSON(&createReviewRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
 		return
 	}
 	userIDStr, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": utils.T(c, "error.unauthorized")})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": utils.T(c, "error.unauthorized")})
 		return
 	}
 	userID, ok := userIDStr.(uint)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": utils.T(c, "error.invalid_user_id")})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": utils.T(c, "error.invalid_user_id")})
 		return
 	}
 	err := h.reviewUseCase.CreateReview(c.Request.Context(), &createReviewRequest, userID)
 	if err != nil {
 		switch {
 		case errors.Is(err, reviewError.ErrBookingNotFound):
-			c.JSON(http.StatusNotFound, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusNotFound, gin.H{"message": utils.T(c, err.Error())})
 		case errors.Is(err, reviewError.ErrBookingNotCheckedOut),
 			errors.Is(err, reviewError.ErrReviewAlreadyExists):
-			c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, err.Error())})
 		case errors.Is(err, reviewError.ErrFailedToCreateReview),
 			errors.Is(err, reviewError.ErrReviewCheckFailed),
 			errors.Is(err, reviewError.ErrFailedToGetBooking):
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, err.Error())})
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, err.Error())})
 		}
 		return
 	}

@@ -25,17 +25,14 @@ func NewPaymentUseCase(paymentRepo repository.PaymentRepository, bookingRepo rep
 	return &PaymentUseCase{paymentRepo: paymentRepo, bookingRepo: bookingRepo, billRepo: billRepo}
 }
 
-func (u *PaymentUseCase) GetVnPayUrl(ctx context.Context, bookingID uint, clientIP string) (string, error) {
+func (u *PaymentUseCase) GetVnPayUrl(ctx context.Context, tx *gorm.DB, bookingID uint, clientIP string) (string, error) {
 	paymentURL := ""
-	booking, err := u.bookingRepo.GetBookingByID(ctx, bookingID)
+	booking, err := u.bookingRepo.GetBookingByIDTx(ctx, tx, bookingID)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return paymentURL, paymentError.ErrBookingNotFound
 	}
 	if err != nil {
 		return paymentURL, paymentError.ErrFailedToGetBooking
-	}
-	if booking.BookingStatus != constant.CHECKED_OUT {
-		return paymentURL, paymentError.ErrBookingNotCheckedOut
 	}
 	if booking.IsPaid {
 		return paymentURL, paymentError.ErrBookingHasPaid
@@ -50,7 +47,7 @@ func (u *PaymentUseCase) GetVnPayUrl(ctx context.Context, bookingID uint, client
 		PaidAt:        time.Now(),
 		TxnRef:        txnRef,
 	}
-	err = u.paymentRepo.CreatePayment(ctx, newPayment)
+	err = u.paymentRepo.CreatePaymentTx(ctx, tx, newPayment)
 	if err != nil {
 		return paymentURL, errors.New("error.failed_to_save_payment")
 	}
@@ -88,6 +85,7 @@ func (u *PaymentUseCase) HandleVnpayCallback(ctx context.Context, vnpTxnRef, vnp
 			payment.PaymentStatus = constant.PAYMENT_SUCCESS
 			payment.TransactionID = vnpTransactionNo
 			booking.IsPaid = true
+			booking.BookingStatus = constant.BOOKED
 
 			if err := u.bookingRepo.UpdateBookingTx(ctx, tx, booking); err != nil {
 				return paymentError.ErrFailedToUpdateBooking

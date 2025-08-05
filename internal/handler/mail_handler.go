@@ -32,25 +32,25 @@ func NewMailHandler(mailUseCase *usecase.MailUseCase) *MailHandler {
 func (h *MailHandler) SendVerificationEmail(c *gin.Context) {
 	var mailRequest dto.MailRequest
 	if err := c.ShouldBindJSON(&mailRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
 		return
 	}
 	err := h.mailUseCase.SendVerificationEmail(c.Request.Context(), mailRequest)
 	if err != nil {
 		switch err.Error() {
 		case "error.get_user_failed":
-			c.JSON(http.StatusNotFound, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusNotFound, gin.H{"message": utils.T(c, err.Error())})
 		case "error.generate_token_failed", "error.failed_to_send_verification_email":
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": utils.T(c, err.Error()),
+				"message": utils.T(c, err.Error()),
 			})
 		case "error.user_already_verified":
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": utils.T(c, err.Error()),
+				"message": utils.T(c, err.Error()),
 			})
 		default:
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": utils.T(c, "error.internal_server"),
+				"message": utils.T(c, "error.internal_server"),
 			})
 		}
 		return
@@ -73,20 +73,20 @@ func (h *MailHandler) SendVerificationEmail(c *gin.Context) {
 func (h *MailHandler) ActiveAccountHandler(c *gin.Context) {
 	tokenString := c.Query("token")
 	if tokenString == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.token_required")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.token_required")})
 		return
 	}
 	err := h.mailUseCase.ActivateAccount(c.Request.Context(), tokenString)
 	if err != nil {
 		switch err.Error() {
 		case "error.get_user_failed":
-			c.JSON(http.StatusNotFound, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusNotFound, gin.H{"message": utils.T(c, err.Error())})
 		case "error.invalid_token", "error.user_already_verified":
-			c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, err.Error())})
 		case "error.failed_to_update_user":
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, err.Error())})
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.internal_server")})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, "error.internal_server")})
 		}
 		return
 	}
@@ -110,19 +110,19 @@ func (h *MailHandler) ActiveAccountHandler(c *gin.Context) {
 func (h *MailHandler) ResetPassword(c *gin.Context) {
 	var mailRequest dto.MailRequest
 	if err := c.ShouldBindJSON(&mailRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
 		return
 	}
 	err := h.mailUseCase.SendResetPassword(c.Request.Context(), mailRequest)
 	if err != nil {
 		switch err.Error() {
 		case "error.get_user_failed":
-			c.JSON(http.StatusNotFound, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusNotFound, gin.H{"message": utils.T(c, err.Error())})
 		case "error.failed_to_generate_password", "error.hash_password_failed",
 			"error.failed_to_update_user", "error.failed_to_send_verification_email":
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, err.Error())})
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.internal_server")})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, "error.internal_server")})
 		}
 		return
 	}

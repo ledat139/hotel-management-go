@@ -37,12 +37,12 @@ func NewAuthHandler(userUseCase *usecase.UserUseCase, authUseCase *usecase.AuthU
 func (h *AuthHandler) Register(c *gin.Context) {
 	var registerRequest dto.RegisterRequest
 	if err := c.ShouldBindJSON(&registerRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
 		return
 	}
 	user, err := h.authUseCase.Register(c.Request.Context(), &registerRequest)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, err.Error())})
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{
@@ -66,19 +66,19 @@ func (h *AuthHandler) Register(c *gin.Context) {
 func (h *AuthHandler) Login(c *gin.Context) {
 	var loginRequest dto.LoginRequest
 	if err := c.ShouldBindJSON(&loginRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
 		return
 	}
 	user, err := h.authUseCase.Authenticate(c.Request.Context(), &loginRequest)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": utils.T(c, err.Error())})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": utils.T(c, err.Error())})
 		return
 	}
 	accessToken, errAT := utils.GenerateAccessToken(user)
 	refreshToken, errRT := utils.GenerateRefreshToken(user)
 
 	if errAT != nil || errRT != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.generate_token_failed")})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, "error.generate_token_failed")})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -106,17 +106,17 @@ func (h *AuthHandler) Login(c *gin.Context) {
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	var input dto.RefreshTokenInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_request")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.invalid_request")})
 		return
 	}
 	user, err := h.authUseCase.AuthenticateUserFromClaim(c.Request.Context(), &input)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
 		return
 	}
 	newAccessToken, err := utils.GenerateAccessToken(user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.generate_token_failed")})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, "error.generate_token_failed")})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"access_token": newAccessToken})
@@ -147,25 +147,25 @@ func (h *AuthHandler) GoogleLoginHandler(c *gin.Context) {
 func (h *AuthHandler) GoogleCallbackHandler(c *gin.Context) {
 	code := c.Query("code")
 	if code == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.code_not_found")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, "error.code_not_found")})
 		return
 	}
 
 	userInfo, err := h.authUseCase.HandleGoogleCallback(code)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, err.Error())})
 		return
 	}
 
 	user, err := h.userUseCase.GetUserByEmail(c.Request.Context(), userInfo.Email)
 	if err != nil && err != gorm.ErrRecordNotFound {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.get_user_failed")})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, "error.get_user_failed")})
 		return
 	}
 	if user == nil {
 		user, err = h.userUseCase.CreateUser(c, &models.User{Email: userInfo.Email, Name: userInfo.Name, IsActive: true})
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.create_user_failed")})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, "error.create_user_failed")})
 			return
 		}
 	}
@@ -173,7 +173,7 @@ func (h *AuthHandler) GoogleCallbackHandler(c *gin.Context) {
 	refreshToken, errRT := utils.GenerateRefreshToken(user)
 
 	if errAT != nil || errRT != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.generate_token_failed")})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, "error.generate_token_failed")})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{

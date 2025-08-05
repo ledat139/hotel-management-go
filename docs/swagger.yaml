@@ -65,6 +65,11 @@ definitions:
     - rating
     - room_id
     type: object
+  hotel-management_internal_dto.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
   hotel-management_internal_dto.LoginRequest:
     properties:
       email:
@@ -108,6 +113,12 @@ definitions:
     - first_name
     - last_name
     - password
+    type: object
+  hotel-management_internal_dto.Response:
+    properties:
+      data: {}
+      message:
+        type: string
     type: object
   hotel-management_internal_dto.SearchRoomRequest:
     properties:
@@ -350,29 +361,29 @@ paths:
       - application/json
       responses:
         "201":
-          description: Booking created successfully.
+          description: Response with booking details and payment URL
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/hotel-management_internal_dto.Response'
         "400":
-          description: Room is not available.
+          description: Invalid request data/Start date must be before end date/Room
+            is not available/Invalid client IP address
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/hotel-management_internal_dto.ErrorResponse'
         "401":
-          description: Unauthorized access.
+          description: Unauthorized access
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/hotel-management_internal_dto.ErrorResponse'
+        "404":
+          description: Room not found
+          schema:
+            $ref: '#/definitions/hotel-management_internal_dto.ErrorResponse'
         "500":
-          description: Failed to create booking, get room price, or commit transaction.
+          description: Failed to get room price/Failed to create booking/Failed to
+            commit transaction
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/hotel-management_internal_dto.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Create a new booking
       tags:
       - Booking
@@ -434,17 +445,13 @@ paths:
               $ref: '#/definitions/hotel-management_internal_dto.BookingHistoryResponse'
             type: array
         "401":
-          description: Unauthorized access.
+          description: Unauthorized access
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/hotel-management_internal_dto.ErrorResponse'
         "500":
-          description: Failed to get booking history.
+          description: Failed to get booking history
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/hotel-management_internal_dto.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get booking history for current customer
@@ -576,49 +583,6 @@ paths:
       summary: Activate user account
       tags:
       - Mail
-  /payments/{id}/vnpay:
-    get:
-      description: Generate a payment URL via VnPay for a specific booking.
-      parameters:
-      - description: Booking ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: VnPay payment URL generated successfully
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Invalid amount or invalid IP address
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "404":
-          description: Booking not found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "409":
-          description: Booking has already been paid
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Failed to create payment or save payment info
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Create VnPay payment URL
-      tags:
-      - payments
   /payments/vnpay_return:
     get:
       description: Handle the response returned from VnPay after a payment attempt.
@@ -805,4 +769,9 @@ paths:
       summary: Update user profile
       tags:
       - Users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

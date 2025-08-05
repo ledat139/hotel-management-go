@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"hotel-management/internal/constant"
 	"hotel-management/internal/dto"
 
 	"hotel-management/internal/models"
@@ -13,14 +14,20 @@ import (
 )
 
 type BookingUseCase struct {
-	bookingRepo repository.BookingRepository
+	bookingRepo    repository.BookingRepository
+	paymentUseCase PaymentUseCase
 }
 
-func NewBookingUseCase(bookingRepo repository.BookingRepository) *BookingUseCase {
-	return &BookingUseCase{bookingRepo: bookingRepo}
+func NewBookingUseCase(bookingRepo repository.BookingRepository, paymentUseCase PaymentUseCase) *BookingUseCase {
+	return &BookingUseCase{bookingRepo: bookingRepo, paymentUseCase: paymentUseCase}
 }
 
-func (u *BookingUseCase) CreateBooking(ctx context.Context, createBookingRequest *dto.CreateBookingRequest, userID uint) error {
+func (u *BookingUseCase) CreateBooking(
+	ctx context.Context,
+	createBookingRequest *dto.CreateBookingRequest,
+	userID uint,
+	clientIP string,
+) (*models.Booking, string, error) {
 	var bookingRooms []*models.BookingRoom
 	var totalPrice float64
 
@@ -32,24 +39,27 @@ func (u *BookingUseCase) CreateBooking(ctx context.Context, createBookingRequest
 		}
 	}()
 
+	// Validate room and calculate price
 	for _, roomID := range createBookingRequest.RoomIDs {
 		if roomID <= 0 {
-			return errors.New("error.invalid_room_id")
+			tx.Rollback()
+			return nil, "", errors.New("error.invalid_room_id")
 		}
 		isAvailable, err := u.bookingRepo.IsAvailableRoom(ctx, tx, roomID, createBookingRequest.StartDate, createBookingRequest.EndDate)
 		if err != nil || !isAvailable {
 			tx.Rollback()
-			return errors.New("error.room_is_not_available")
+			return nil, "", errors.New("error.room_is_not_available")
 		}
 		price, err := u.bookingRepo.GetPriceByRoomID(ctx, tx, roomID)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			tx.Rollback()
-			return errors.New("error.room_not_found")
+			return nil, "", errors.New("error.room_not_found")
 		}
 		if err != nil {
 			tx.Rollback()
-			return errors.New("error.failed_to_get_room_price")
+			return nil, "", errors.New("error.failed_to_get_room_price")
 		}
+
 		bookingRooms = append(bookingRooms, &models.BookingRoom{
 			RoomID: uint(roomID),
 			Price:  price,
@@ -57,31 +67,42 @@ func (u *BookingUseCase) CreateBooking(ctx context.Context, createBookingRequest
 		nights := int(math.Ceil(createBookingRequest.EndDate.Sub(createBookingRequest.StartDate).Hours() / 24))
 		totalPrice += price * float64(nights)
 	}
+
+	// Create booking
 	booking := &models.Booking{
-		UserID:        uint(userID),
-		BookingStatus: "booked",
+		UserID:        userID,
+		BookingStatus: constant.PENDING,
 		TotalPrice:    totalPrice,
 		IsPaid:        false,
 		StartDate:     createBookingRequest.StartDate,
 		EndDate:       createBookingRequest.EndDate,
 	}
-	err := u.bookingRepo.CreateBookingTx(ctx, tx, booking)
-	if err != nil {
+	if err := u.bookingRepo.CreateBookingTx(ctx, tx, booking); err != nil {
 		tx.Rollback()
-		return errors.New("error.failed_to_create_booking")
+		return nil, "", errors.New("error.failed_to_create_booking")
 	}
-	for _, bookingRoom := range bookingRooms {
-		bookingRoom.BookingID = booking.ID
-		err := u.bookingRepo.CreateBookingRoomTx(ctx, tx, bookingRoom)
-		if err != nil {
+
+	// Create booking_room
+	for _, br := range bookingRooms {
+		br.BookingID = booking.ID
+		if err := u.bookingRepo.CreateBookingRoomTx(ctx, tx, br); err != nil {
 			tx.Rollback()
-			return errors.New("error.failed_to_create_booking")
+			return nil, "", errors.New("error.failed_to_create_booking_room")
 		}
 	}
-	if err := tx.Commit().Error; err != nil {
-		return errors.New("error.failed_to_commit_transaction")
+
+	// Get VnPayUrl
+	paymentURL, err := u.paymentUseCase.GetVnPayUrl(ctx, tx, booking.ID, clientIP)
+	if err != nil {
+		tx.Rollback()
+		return nil, "", errors.New("error.failed_to_create_vnpay_payment")
 	}
-	return nil
+
+	// Commit
+	if err := tx.Commit().Error; err != nil {
+		return nil, "", errors.New("error.failed_to_commit_transaction")
+	}
+	return booking, paymentURL, nil
 }
 
 func (u *BookingUseCase) GetBookingHistory(ctx context.Context, userID uint) ([]dto.BookingHistoryResponse, error) {

@@ -1,14 +1,16 @@
 package constant
 
 const (
+	PENDING    = "pending"
+	BOOKED     = "booked"
+	CHECKED_IN = "checked_in"
 	CHECKED_OUT = "checked_out"
-	BOOKED      = "booked"
-	CANCELLED   = "cancelled"
-	CHECKED_IN  = "checked_in"
-	NO_SHOW     = "no_show"
+	CANCELLED = "cancelled"
+	NO_SHOW   = "no_show"
 )
 
 var validBookingStatuses = map[string]bool{
+	PENDING:     true,
 	BOOKED:      true,
 	CHECKED_IN:  true,
 	CHECKED_OUT: true,

@@ -6,7 +6,6 @@ import (
 	"hotel-management/internal/usecase"
 	"hotel-management/internal/utils"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,47 +16,6 @@ type PaymentHandler struct {
 
 func NewPaymentHandler(paymentUseCase *usecase.PaymentUseCase) *PaymentHandler {
 	return &PaymentHandler{paymentUseCase: paymentUseCase}
-}
-
-// GetVnPayUrl godoc
-// @Summary      Create VnPay payment URL
-// @Description  Generate a payment URL via VnPay for a specific booking.
-// @Tags         payments
-// @Param        id   path      int  true  "Booking ID"
-// @Success      200  {object}  map[string]string  "VnPay payment URL generated successfully"
-// @Failure      400  {object}  map[string]string  "Invalid amount or invalid IP address"
-// @Failure      404  {object}  map[string]string  "Booking not found"
-// @Failure      409  {object}  map[string]string  "Booking has already been paid"
-// @Failure      500  {object}  map[string]string  "Failed to create payment or save payment info"
-// @Router       /payments/{id}/vnpay [get]
-func (h *PaymentHandler) GetVnPayUrl(c *gin.Context) {
-	bookingIDStr := c.Param("id")
-	clientIP := c.ClientIP()
-
-	bookingID, err := strconv.Atoi(bookingIDStr)
-	if err != nil || bookingID <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_booking_id")})
-		return
-	}
-	if clientIP == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, "error.invalid_client_ip")})
-		return
-	}
-	paymentURL, err := h.paymentUseCase.GetVnPayUrl(c.Request.Context(), uint(bookingID), clientIP)
-	if err != nil {
-		switch {
-		case errors.Is(err, paymentError.ErrBookingNotFound), errors.Is(err, paymentError.ErrBookingHasPaid):
-			c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, err.Error())})
-		case errors.Is(err, paymentError.ErrFailedToGetBooking):
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
-		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.failed_to_pay_booking")})
-		}
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"payment_url": paymentURL,
-	})
 }
 
 // HandleVnpayCallback godoc
@@ -79,7 +37,7 @@ func (h *PaymentHandler) HandleVnpayCallback(c *gin.Context) {
 	vnpTransactionNo := c.Query("vnp_TransactionNo")
 
 	if vnpTxnRef == "" || vnpResponseCode == "" || vnpTransactionNo == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "error.invalid_vnpay_callback_parameters"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "error.invalid_vnpay_callback_parameters"})
 		return
 	}
 
@@ -87,15 +45,15 @@ func (h *PaymentHandler) HandleVnpayCallback(c *gin.Context) {
 	if err != nil {
 		switch {
 		case errors.Is(err, paymentError.ErrPaymentNotFound), errors.Is(err, paymentError.ErrBookingNotFound):
-			c.JSON(http.StatusNotFound, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusNotFound, gin.H{"message": utils.T(c, err.Error())})
 		case errors.Is(err, paymentError.ErrFailedToGetPayment), errors.Is(err, paymentError.ErrFailedToGetBooking):
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, err.Error())})
 		case errors.Is(err, paymentError.ErrPaymentAlreadyProcessed):
-			c.JSON(http.StatusBadRequest, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusBadRequest, gin.H{"message": utils.T(c, err.Error())})
 		case errors.Is(err, paymentError.ErrFailedToUpdatePayment), errors.Is(err, paymentError.ErrFailedToUpdateBooking), errors.Is(err, paymentError.ErrFailedToCreateBill):
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, err.Error())})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, err.Error())})
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": utils.T(c, "error.failed_to_process_payment")})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": utils.T(c, "error.failed_to_process_payment")})
 		}
 		return
 	}

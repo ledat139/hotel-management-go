@@ -9,7 +9,7 @@ import (
 type Booking struct {
 	gorm.Model
 	UserID        uint      `gorm:"not null" json:"user_id"`
-	BookingStatus string    `gorm:"default:'booked'" json:"booking_status" binding:"required,oneof=booked cancelled checked_in checked_out no_show"`
+	BookingStatus string    `gorm:"default:'booked'" json:"booking_status" binding:"required,oneof=pending booked cancelled checked_in checked_out no_show"`
 	TotalPrice    float64   `gorm:"not null" json:"total_price"`
 	IsPaid        bool      `gorm:"not null" json:"is_paid"`
 	StartDate     time.Time `gorm:"type:datetime;not null" json:"start_date"`

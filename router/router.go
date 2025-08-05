@@ -96,10 +96,12 @@ func SetupRoutes(r *gin.Engine) {
 	//Room routes
 	roomUseCase := usecase.NewRoomUseCase(roomRepository)
 	roomHandler := handler.NewRoomHandler(roomUseCase)
-	r.POST("/rooms/search", middleware.RequireAuth(userRepository), roomHandler.FindAvailableRoom)
+	r.POST("/rooms/search", roomHandler.FindAvailableRoom)
 
 	//Booking routes
-	bookingUseCase := usecase.NewBookingUseCase(bookingRepository)
+	paymentRepository := repository.NewPaymentRepository(database.DB)
+	paymentUseCase := usecase.NewPaymentUseCase(paymentRepository, bookingRepository, billRepository)
+	bookingUseCase := usecase.NewBookingUseCase(bookingRepository, *paymentUseCase)
 	bookingHandler := handler.NewBookingHandler(bookingUseCase)
 	bookingGroup := r.Group("/bookings")
 	{
@@ -113,12 +115,10 @@ func SetupRoutes(r *gin.Engine) {
 	r.POST("/reviews", middleware.RequireAuth(userRepository), reviewHandler.CreateReview)
 
 	//Payment routes
-	paymentRepository := repository.NewPaymentRepository(database.DB)
-	paymentUseCase := usecase.NewPaymentUseCase(paymentRepository, bookingRepository, billRepository)
+
 	paymentHandler := handler.NewPaymentHandler(paymentUseCase)
 	paymentGroup := r.Group("/payments")
 	{
-		paymentGroup.GET("/:id/vnpay", paymentHandler.GetVnPayUrl)
 		paymentGroup.GET("/vnpay_return", paymentHandler.HandleVnpayCallback)
 	}
 }

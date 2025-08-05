@@ -20,6 +20,9 @@ import (
 // @title Hotel Management API
 // @version 1.0
 // @description This is an API for hotel management.
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 
 // @host localhost:8080
 // @BasePath /
@@ -46,7 +49,7 @@ func main() {
 
 	r.LoadHTMLGlob(filepath.Join(basePath, "/web/templates/**/*.html"))
 
-	store := cookie.NewStore([]byte(os.Getenv(	"SECRET_KEY")))
+	store := cookie.NewStore([]byte(os.Getenv("SECRET_KEY")))
 	r.Use(sessions.Sessions("mysession", store))
 	router.SetupRoutes(r)
 

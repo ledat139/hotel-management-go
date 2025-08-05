@@ -59,10 +59,12 @@ func (r *roomRepository) FindAvailableRoom(ctx context.Context, searchRoomReques
 	if searchRoomRequest.ViewType != nil {
 		db = db.Where("view_type = ?", *searchRoomRequest.ViewType)
 	}
-	if searchRoomRequest.MinPrice != nil && searchRoomRequest.MaxPrice != nil {
-		db = db.Where("price_per_night BETWEEN ? AND ?", *searchRoomRequest.MinPrice, *searchRoomRequest.MaxPrice)
+	if searchRoomRequest.MinPrice != nil {
+		db = db.Where("price_per_night >= ?", *searchRoomRequest.MinPrice)
 	}
-
+	if searchRoomRequest.MaxPrice != nil {
+		db = db.Where("price_per_night <= ?", *searchRoomRequest.MaxPrice)
+	}
 	if err := db.Find(&rooms).Error; err != nil {
 		return nil, err
 	}

@@ -9,6 +9,7 @@ import (
 
 type PaymentRepository interface {
 	CreatePayment(ctx context.Context, payment *models.Payment) error
+	CreatePaymentTx(ctx context.Context, tx *gorm.DB, payment *models.Payment) error
 	GetPaymentByTxnRefTx(ctx context.Context, tx *gorm.DB, txnRef string) (*models.Payment, error)
 	UpdatePaymentTx(ctx context.Context, tx *gorm.DB, payment *models.Payment) error
 	GetDB() *gorm.DB
@@ -26,6 +27,10 @@ func (r *paymentRepository) GetDB() *gorm.DB {
 
 func (r *paymentRepository) CreatePayment(ctx context.Context, payment *models.Payment) error {
 	return r.db.WithContext(ctx).Create(payment).Error
+}
+
+func (r *paymentRepository) CreatePaymentTx(ctx context.Context, tx *gorm.DB, payment *models.Payment) error {
+	return tx.WithContext(ctx).Create(payment).Error
 }
 
 func (r *paymentRepository) GetPaymentByTxnRefTx(ctx context.Context, tx *gorm.DB, txnRef string) (*models.Payment, error) {

@@ -15,7 +15,7 @@ func NewRoomUseCase(roomRepo repository.RoomRepository) *RoomUseCase {
 }
 
 func (u *RoomUseCase) SearchRoom(ctx context.Context, searchRoomRequest *dto.SearchRoomRequest) ([]dto.SearchRoomResponse, error) {
-	var responses []dto.SearchRoomResponse
+	responses := make([]dto.SearchRoomResponse, 0)
 	rooms, err := u.roomRepo.FindAvailableRoom(ctx, searchRoomRequest)
 	if err != nil {
 		return responses, err
